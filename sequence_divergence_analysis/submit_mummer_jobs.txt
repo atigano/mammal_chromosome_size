@@ -1,0 +1,71 @@
+### Peromyscus mice
+sbatch ~/scripts/mummer2pero_chr.sh maniculatus polionotus
+sbatch ~/scripts/mummer2pero_chr.sh maniculatus crinitus
+sbatch ~/scripts/mummer2pero_chr.sh maniculatus nasutus
+sbatch ~/scripts/mummer2pero_chr.sh maniculatus californicus
+sbatch ~/scripts/mummer2pero_chr.sh polionotus crinitus
+sbatch ~/scripts/mummer2pero_chr.sh polionotus nasutus
+sbatch ~/scripts/mummer2pero_chr.sh polionotus californicus
+sbatch ~/scripts/mummer2pero_chr.sh crinitus nasutus
+sbatch ~/scripts/mummer2pero_chr.sh crinitus californicus
+sbatch ~/scripts/mummer2pero_chr.sh nasutus californicus
+sbatch ~/scripts/mummer2pero_chr.sh eremicus2 nasutus
+sbatch ~/scripts/mummer2pero_chr.sh eremicus2 californicus
+sbatch ~/scripts/mummer2pero_chr.sh maniculatus eremicus2
+sbatch ~/scripts/mummer2pero_chr.sh polionotus eremicus2
+sbatch ~/scripts/mummer2pero_chr.sh crinitus eremicus2
+
+sbatch ~/scripts/mummer2pero_chr.sh polionotus maniculatus
+sbatch ~/scripts/mummer2pero_chr.sh crinitus maniculatus
+sbatch ~/scripts/mummer2pero_chr.sh crinitus polionotus
+sbatch ~/scripts/mummer2pero_chr.sh eremicus2 maniculatus
+sbatch ~/scripts/mummer2pero_chr.sh eremicus2 polionotus
+sbatch ~/scripts/mummer2pero_chr.sh eremicus2 crinitus
+sbatch ~/scripts/mummer2pero_chr.sh nasutus maniculatus
+sbatch ~/scripts/mummer2pero_chr.sh nasutus polionotus
+sbatch ~/scripts/mummer2pero_chr.sh nasutus crinitus
+sbatch ~/scripts/mummer2pero_chr.sh nasutus eremicus2
+sbatch ~/scripts/mummer2pero_chr.sh californicus maniculatus
+sbatch ~/scripts/mummer2pero_chr.sh californicus polionotus
+sbatch ~/scripts/mummer2pero_chr.sh californicus crinitus
+sbatch ~/scripts/mummer2pero_chr.sh californicus eremicus2
+sbatch ~/scripts/mummer2pero_chr.sh californicus nasutus
+
+### Great apes
+sbatch ~/scripts/mummer2homo_chr.sh Homo_sapiens Pan_troglodytes
+sbatch ~/scripts/mummer2homo_chr.sh Homo_sapiens Pan_paniscus
+sbatch ~/scripts/mummer2homo_chr.sh Homo_sapiens Gorilla_gorilla
+sbatch ~/scripts/mummer2homo_chr.sh Homo_sapiens Pongo_abelii 
+sbatch ~/scripts/mummer2homo_chr.sh Pan_troglodytes Pan_paniscus
+sbatch ~/scripts/mummer2homo_chr.sh Pan_troglodytes Gorilla_gorilla
+sbatch ~/scripts/mummer2homo_chr.sh Pan_troglodytes Pongo_abelii 
+sbatch ~/scripts/mummer2homo_chr.sh Pan_paniscus Gorilla_gorilla
+sbatch ~/scripts/mummer2homo_chr.sh Pan_paniscus Pongo_abelii 
+sbatch ~/scripts/mummer2homo_chr.sh Gorilla_gorilla Pongo_abelii 
+
+sbatch ~/scripts/mummer2homo_chr.sh Pan_paniscus Homo_sapiens
+sbatch ~/scripts/mummer2homo_chr.sh Pan_paniscus Pan_troglodytes
+sbatch ~/scripts/mummer2homo_chr.sh Gorilla_gorilla Homo_sapiens
+sbatch ~/scripts/mummer2homo_chr.sh Gorilla_gorilla Pan_troglodytes
+sbatch ~/scripts/mummer2homo_chr.sh Gorilla_gorilla Pan_paniscus
+sbatch ~/scripts/mummer2homo_chr.sh Pongo_abelii Homo_sapiens
+sbatch ~/scripts/mummer2homo_chr.sh Pongo_abelii Pan_troglodytes
+sbatch ~/scripts/mummer2homo_chr.sh Pongo_abelii Pan_paniscus
+sbatch ~/scripts/mummer2homo_chr.sh Pongo_abelii Gorilla_gorilla
+
+### Mus mice
+sbatch ~/scripts/mummer2mus_chr.sh musculus caroli
+sbatch ~/scripts/mummer2mus_chr.sh musculus pahari
+sbatch ~/scripts/mummer2mus_chr.sh musculus spretus
+sbatch ~/scripts/mummer2mus_chr.sh caroli pahari
+sbatch ~/scripts/mummer2mus_chr.sh caroli spretus
+sbatch ~/scripts/mummer2mus_chr.sh pahari spretus
+
+sbatch ~/scripts/mummer2mus_chr.sh pahari musculus
+sbatch ~/scripts/mummer2mus_chr.sh pahari caroli
+
+sbatch ~/scripts/mummer2mus_chr.sh caroli musculus
+sbatch ~/scripts/mummer2mus_chr.sh spretus musculus
+sbatch ~/scripts/mummer2mus_chr.sh spretus caroli
+sbatch ~/scripts/mummer2mus_chr.sh spretus pahari
+
