@@ -1,0 +1,1255 @@
+R script to analyse patterns of sequence divergence among chromosomes of different sizes in Peromyscus mice, Mus mice and great apes.
+At the end are the scripts to create Fig.1 and Supplementary Figs. S2, S3, and S4.
+
+############################
+
+###         PERO      ####
+
+###########################
+
+setwd("~/Dropbox/postdoc UNH/projects/20pero/divergence_analysis")
+library(radiant.data)
+library(data.table)
+###load data
+maniculatus_californicus<-fread("mummer_tab_files/mummer2maniculatus_californicus_chr.filter10k.tab", header = TRUE)
+maniculatus_crinitus<-fread("mummer_tab_files/mummer2maniculatus_crinitus_chr.filter10k.tab", header = TRUE)
+maniculatus_eremicus<-fread("mummer_tab_files/mummer2maniculatus_eremicus2_chr.filter10k.tab", header = TRUE)
+maniculatus_nasutus<-fread("mummer_tab_files/mummer2maniculatus_nasutus_chr.filter10k.tab", header = TRUE)
+maniculatus_polionotus<-fread("mummer_tab_files/mummer2maniculatus_polionotus_chr.filter10k.tab", header = TRUE)
+polionotus_californicus<-fread("mummer_tab_files/mummer2polionotus_californicus_chr.filter10k.tab", header = TRUE)
+polionotus_crinitus<-fread("mummer_tab_files/mummer2polionotus_crinitus_chr.filter10k.tab", header = TRUE)
+polionotus_eremicus<-fread("mummer_tab_files/mummer2polionotus_eremicus2_chr.filter10k.tab", header = TRUE)
+polionotus_nasutus<-fread("mummer_tab_files/mummer2polionotus_nasutus_chr.filter10k.tab", header = TRUE)
+crinitus_californicus<-fread("mummer_tab_files/mummer2crinitus_californicus_chr.filter10k.tab", header = TRUE)
+crinitus_eremicus<-fread("mummer_tab_files/mummer2crinitus_eremicus2_chr.filter10k.tab", header = TRUE)
+crinitus_nasutus<-fread("mummer_tab_files/mummer2crinitus_nasutus_chr.filter10k.tab", header = TRUE)
+eremicus_californicus<-fread("mummer_tab_files/mummer2eremicus2_californicus_chr.filter10k.tab", header = TRUE)
+eremicus_nasutus<-fread("mummer_tab_files/mummer2eremicus2_nasutus_chr.filter10k.tab", header = TRUE)
+nasutus_californicus<-fread("mummer_tab_files/mummer2nasutus_californicus_chr.filter10k.tab", header = TRUE)
+
+polionotus_maniculatus<-fread("mummer_tab_files/mummer2polionotus_maniculatus_chr.filter10k.tab", header = TRUE)
+crinitus_maniculatus<-fread("mummer_tab_files/mummer2crinitus_maniculatus_chr.filter10k.tab", header = TRUE)
+crinitus_polionotus<-fread("mummer_tab_files/mummer2crinitus_polionotus_chr.filter10k.tab", header = TRUE)
+eremicus_maniculatus<-fread("mummer_tab_files/mummer2eremicus2_maniculatus_chr.filter10k.tab", header = TRUE)
+eremicus_polionotus<-fread("mummer_tab_files/mummer2eremicus2_polionotus_chr.filter10k.tab", header = TRUE)
+eremicus_crinitus<-fread("mummer_tab_files/mummer2eremicus2_crinitus_chr.filter10k.tab", header = TRUE)
+nasutus_maniculatus<-fread("mummer_tab_files/mummer2nasutus_maniculatus_chr.filter10k.tab", header = TRUE)
+nasutus_polionotus<-fread("mummer_tab_files/mummer2nasutus_polionotus_chr.filter10k.tab", header = TRUE)
+nasutus_crinitus<-fread("mummer_tab_files/mummer2nasutus_crinitus_chr.filter10k.tab", header = TRUE)
+nasutus_eremicus<-fread("mummer_tab_files/mummer2nasutus_eremicus2_chr.filter10k.tab", header = TRUE)
+californicus_maniculatus<-fread("mummer_tab_files/mummer2californicus_maniculatus_chr.filter10k.tab", header = TRUE)
+californicus_polionotus<-fread("mummer_tab_files/mummer2californicus_polionotus_chr.filter10k.tab", header = TRUE)
+californicus_crinitus<-fread("mummer_tab_files/mummer2californicus_crinitus_chr.filter10k.tab", header = TRUE)
+californicus_eremicus<-fread("mummer_tab_files/mummer2californicus_eremicus2_chr.filter10k.tab", header = TRUE)
+californicus_nasutus<-fread("mummer_tab_files/mummer2californicus_nasutus_chr.filter10k.tab", header = TRUE)
+
+
+###error with nasutus - chr6 and chr X are swapped
+###code to fix error from alignments
+nasutus_maniculatus$CHR1[nasutus_maniculatus$CHR1 == 'chrX'] <- 'chr6x'
+nasutus_maniculatus$CHR1[nasutus_maniculatus$CHR1 == 'chr6'] <- 'chrX'
+nasutus_maniculatus$CHR1[nasutus_maniculatus$CHR1 == 'chr6x'] <- 'chr6'
+
+nasutus_polionotus$CHR1[nasutus_polionotus$CHR1 == 'chrX'] <- 'chr6x'
+nasutus_polionotus$CHR1[nasutus_polionotus$CHR1 == 'chr6'] <- 'chrX'
+nasutus_polionotus$CHR1[nasutus_polionotus$CHR1 == 'chr6x'] <- 'chr6'
+
+nasutus_crinitus$CHR1[nasutus_crinitus$CHR1 == 'chrX'] <- 'chr6x'
+nasutus_crinitus$CHR1[nasutus_crinitus$CHR1 == 'chr6'] <- 'chrX'
+nasutus_crinitus$CHR1[nasutus_crinitus$CHR1 == 'chr6x'] <- 'chr6'
+
+nasutus_eremicus$CHR1[nasutus_eremicus$CHR1 == 'chrX'] <- 'chr6x'
+nasutus_eremicus$CHR1[nasutus_eremicus$CHR1 == 'chr6'] <- 'chrX'
+nasutus_eremicus$CHR1[nasutus_eremicus$CHR1 == 'chr6x'] <- 'chr6'
+
+nasutus_californicus$CHR1[nasutus_californicus$CHR1 == 'chrX'] <- 'chr6x'
+nasutus_californicus$CHR1[nasutus_californicus$CHR1 == 'chr6'] <- 'chrX'
+nasutus_californicus$CHR1[nasutus_californicus$CHR1 == 'chr6x'] <- 'chr6'
+
+###exclude x chromosome
+maniculatus_californicus_nox<-maniculatus_californicus[CHR1 != 'chrX']
+maniculatus_crinitus_nox<-maniculatus_crinitus[CHR1 != 'chrX']
+maniculatus_eremicus_nox<-maniculatus_eremicus[CHR1 != 'chrX']
+maniculatus_nasutus_nox<-maniculatus_nasutus[CHR1 != 'chrX']
+maniculatus_polionotus_nox<-maniculatus_polionotus[CHR1 != 'chrX']
+polionotus_californicus_nox<-polionotus_californicus[CHR1 != 'chrX']
+polionotus_crinitus_nox<-polionotus_crinitus[CHR1 != 'chrX']
+polionotus_eremicus_nox<-polionotus_eremicus[CHR1 != 'chrX']
+polionotus_nasutus_nox<-polionotus_nasutus[CHR1 != 'chrX']
+crinitus_californicus_nox<-crinitus_californicus[CHR1 != 'chrX']
+crinitus_eremicus_nox<-crinitus_eremicus[CHR1 != 'chrX']
+crinitus_nasutus_nox<-crinitus_nasutus[CHR1 != 'chrX']
+eremicus_californicus_nox<-eremicus_californicus[CHR1 != 'chrX']
+eremicus_nasutus_nox<-eremicus_nasutus[CHR1 != 'chrX']
+nasutus_californicus_nox<-nasutus_californicus[CHR1 != 'chrX']
+
+polionotus_maniculatus_nox<-polionotus_maniculatus[CHR1 != 'chrX']
+crinitus_maniculatus_nox<-crinitus_maniculatus[CHR1 != 'chrX']
+crinitus_polionotus_nox<-crinitus_polionotus[CHR1 != 'chrX']
+eremicus_maniculatus_nox<-eremicus_maniculatus[CHR1 != 'chrX']
+eremicus_polionotus_nox<-eremicus_polionotus[CHR1 != 'chrX']
+eremicus_crinitus_nox<-eremicus_crinitus[CHR1 != 'chrX']
+nasutus_maniculatus_nox<-nasutus_maniculatus[CHR1 != 'chrX']
+nasutus_polionotus_nox<-nasutus_polionotus[CHR1 != 'chrX']
+nasutus_crinitus_nox<-nasutus_crinitus[CHR1 != 'chrX']
+nasutus_eremicus_nox<-nasutus_eremicus[CHR1 != 'chrX']
+californicus_maniculatus_nox<-californicus_maniculatus[CHR1 != 'chrX']
+californicus_polionotus_nox<-californicus_polionotus[CHR1 != 'chrX']
+californicus_crinitus_nox<-californicus_crinitus[CHR1 != 'chrX']
+californicus_eremicus_nox<-californicus_eremicus[CHR1 != 'chrX']
+californicus_nasutus_nox<-californicus_nasutus[CHR1 != 'chrX']
+
+###make dt for X chromosome only
+maniculatus_californicus_x<-maniculatus_californicus[CHR1 == 'chrX']
+maniculatus_crinitus_x<-maniculatus_crinitus[CHR1 == 'chrX']
+maniculatus_eremicus_x<-maniculatus_eremicus[CHR1 == 'chrX']
+maniculatus_nasutus_x<-maniculatus_nasutus[CHR1 == 'chrX']
+maniculatus_polionotus_x<-maniculatus_polionotus[CHR1 == 'chrX']
+polionotus_californicus_x<-polionotus_californicus[CHR1 == 'chrX']
+polionotus_crinitus_x<-polionotus_crinitus[CHR1 == 'chrX']
+polionotus_eremicus_x<-polionotus_eremicus[CHR1 == 'chrX']
+polionotus_nasutus_x<-polionotus_nasutus[CHR1 == 'chrX']
+crinitus_californicus_x<-crinitus_californicus[CHR1 == 'chrX']
+crinitus_eremicus_x<-crinitus_eremicus[CHR1 == 'chrX']
+crinitus_nasutus_x<-crinitus_nasutus[CHR1 == 'chrX']
+eremicus_californicus_x<-eremicus_californicus[CHR1 == 'chrX']
+eremicus_nasutus_x<-eremicus_nasutus[CHR1 == 'chrX']
+nasutus_californicus_x<-nasutus_californicus[CHR1 == 'chrX']
+
+polionotus_maniculatus_x<-polionotus_maniculatus[CHR1 == 'chrX']
+crinitus_maniculatus_x<-crinitus_maniculatus[CHR1 == 'chrX']
+crinitus_polionotus_x<-crinitus_polionotus[CHR1 == 'chrX']
+eremicus_maniculatus_x<-eremicus_maniculatus[CHR1 == 'chrX']
+eremicus_polionotus_x<-eremicus_polionotus[CHR1 == 'chrX']
+eremicus_crinitus_x<-eremicus_crinitus[CHR1 == 'chrX']
+nasutus_maniculatus_x<-nasutus_maniculatus[CHR1 == 'chrX']
+nasutus_polionotus_x<-nasutus_polionotus[CHR1 == 'chrX']
+nasutus_crinitus_x<-nasutus_crinitus[CHR1 == 'chrX']
+nasutus_eremicus_x<-nasutus_eremicus[CHR1 == 'chrX']
+californicus_maniculatus_x<-californicus_maniculatus[CHR1 == 'chrX']
+californicus_polionotus_x<-californicus_polionotus[CHR1 == 'chrX']
+californicus_crinitus_x<-californicus_crinitus[CHR1 == 'chrX']
+californicus_eremicus_x<-californicus_eremicus[CHR1 == 'chrX']
+californicus_nasutus_x<-californicus_nasutus[CHR1 == 'chrX']
+
+###Calculate the weighted mean of identity across automosomes
+weighted.mean(maniculatus_californicus_nox$IDY,maniculatus_californicus_nox$LEN2)
+weighted.mean(maniculatus_crinitus_nox$IDY,maniculatus_crinitus_nox$LEN2)
+weighted.mean(maniculatus_eremicus_nox$IDY,maniculatus_eremicus_nox$LEN2)
+weighted.mean(maniculatus_nasutus_nox$IDY,maniculatus_nasutus_nox$LEN2)
+weighted.mean(maniculatus_polionotus_nox$IDY,maniculatus_polionotus_nox$LEN2)
+weighted.mean(polionotus_californicus_nox$IDY,polionotus_californicus_nox$LEN2)
+weighted.mean(polionotus_crinitus_nox$IDY,polionotus_crinitus_nox$LEN2)
+weighted.mean(polionotus_eremicus_nox$IDY,polionotus_eremicus_nox$LEN2)
+weighted.mean(polionotus_nasutus_nox$IDY,polionotus_nasutus_nox$LEN2)
+weighted.mean(crinitus_californicus_nox$IDY,crinitus_californicus_nox$LEN2)
+weighted.mean(crinitus_eremicus_nox$IDY,crinitus_eremicus_nox$LEN2)
+weighted.mean(crinitus_nasutus_nox$IDY,crinitus_nasutus_nox$LEN2)
+weighted.mean(eremicus_californicus_nox$IDY,eremicus_californicus_nox$LEN2)
+weighted.mean(eremicus_nasutus_nox$IDY,eremicus_nasutus_nox$LEN2)
+weighted.mean(nasutus_californicus_nox$IDY,nasutus_californicus_nox$LEN2)
+
+weighted.mean(polionotus_maniculatus_nox$IDY, polionotus_maniculatus_nox$LEN2)
+weighted.mean(crinitus_maniculatus_nox$IDY, crinitus_maniculatus_nox$LEN2)
+weighted.mean(crinitus_polionotus_nox$IDY, crinitus_polionotus_nox$LEN2)
+weighted.mean(eremicus_maniculatus_nox$IDY, eremicus_maniculatus_nox$LEN2)
+weighted.mean(eremicus_polionotus_nox$IDY, eremicus_polionotus_nox$LEN2)
+weighted.mean(eremicus_crinitus_nox$IDY, eremicus_crinitus_nox$LEN2)
+weighted.mean(nasutus_maniculatus_nox$IDY, nasutus_maniculatus_nox$LEN2)
+weighted.mean(nasutus_polionotus_nox$IDY, nasutus_polionotus_nox$LEN2)
+weighted.mean(nasutus_crinitus_nox$IDY, nasutus_crinitus_nox$LEN2)
+weighted.mean(nasutus_eremicus_nox$IDY, nasutus_eremicus_nox$LEN2)
+weighted.mean(californicus_maniculatus_nox$IDY, californicus_maniculatus_nox$LEN2)
+weighted.mean(californicus_polionotus_nox$IDY, californicus_polionotus_nox$LEN2)
+weighted.mean(californicus_crinitus_nox$IDY, californicus_crinitus_nox$LEN2)
+weighted.mean(californicus_eremicus_nox$IDY, californicus_eremicus_nox$LEN2)
+weighted.mean(californicus_nasutus_nox$IDY, californicus_nasutus_nox$LEN2)
+
+###Calculate the weighted mean of divergence in X chromosome
+weighted.mean(maniculatus_californicus_x$IDY,maniculatus_californicus_x$LEN2)
+weighted.mean(maniculatus_crinitus_x$IDY,maniculatus_crinitus_x$LEN2)
+weighted.mean(maniculatus_eremicus_x$IDY,maniculatus_eremicus_x$LEN2)
+weighted.mean(maniculatus_nasutus_x$IDY,maniculatus_nasutus_x$LEN2)
+weighted.mean(maniculatus_polionotus_x$IDY,maniculatus_polionotus_x$LEN2)
+weighted.mean(polionotus_californicus_x$IDY,polionotus_californicus_x$LEN2)
+weighted.mean(polionotus_crinitus_x$IDY,polionotus_crinitus_x$LEN2)
+weighted.mean(polionotus_eremicus_x$IDY,polionotus_eremicus_x$LEN2)
+weighted.mean(polionotus_nasutus_x$IDY,polionotus_nasutus_x$LEN2)
+weighted.mean(crinitus_californicus_x$IDY,crinitus_californicus_x$LEN2)
+weighted.mean(crinitus_eremicus_x$IDY,crinitus_eremicus_x$LEN2)
+weighted.mean(crinitus_nasutus_x$IDY,crinitus_nasutus_x$LEN2)
+weighted.mean(eremicus_californicus_x$IDY,eremicus_californicus_x$LEN2)
+weighted.mean(eremicus_nasutus_x$IDY,eremicus_nasutus_x$LEN2)
+weighted.mean(nasutus_californicus_x$IDY,nasutus_californicus_x$LEN2)
+
+weighted.mean(polionotus_maniculatus_x$IDY, polionotus_maniculatus_x$LEN2)
+weighted.mean(crinitus_maniculatus_x$IDY, crinitus_maniculatus_x$LEN2)
+weighted.mean(crinitus_polionotus_x$IDY, crinitus_polionotus_x$LEN2)
+weighted.mean(eremicus_maniculatus_x$IDY, eremicus_maniculatus_x$LEN2)
+weighted.mean(eremicus_polionotus_x$IDY, eremicus_polionotus_x$LEN2)
+weighted.mean(eremicus_crinitus_x$IDY, eremicus_crinitus_x$LEN2)
+weighted.mean(nasutus_maniculatus_x$IDY, nasutus_maniculatus_x$LEN2)
+weighted.mean(nasutus_polionotus_x$IDY, nasutus_polionotus_x$LEN2)
+weighted.mean(nasutus_crinitus_x$IDY, nasutus_crinitus_x$LEN2)
+weighted.mean(nasutus_eremicus_x$IDY, nasutus_eremicus_x$LEN2)
+weighted.mean(californicus_maniculatus_x$IDY, californicus_maniculatus_x$LEN2)
+weighted.mean(californicus_polionotus_x$IDY, californicus_polionotus_x$LEN2)
+weighted.mean(californicus_crinitus_x$IDY, californicus_crinitus_x$LEN2)
+weighted.mean(californicus_eremicus_x$IDY, californicus_eremicus_x$LEN2)
+weighted.mean(californicus_nasutus_x$IDY, californicus_nasutus_x$LEN2)
+
+###Calculate mean identity for each chromosome and put it in a new file
+maniculatus_californicus_means<-maniculatus_californicus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+maniculatus_crinitus_means<-maniculatus_crinitus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+maniculatus_eremicus_means<-maniculatus_eremicus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+maniculatus_nasutus_means<-maniculatus_nasutus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+maniculatus_polionotus_means<-maniculatus_polionotus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+polionotus_californicus_means<-polionotus_californicus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+polionotus_crinitus_means<-polionotus_crinitus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+polionotus_eremicus_means<-polionotus_eremicus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+polionotus_nasutus_means<-polionotus_nasutus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+crinitus_californicus_means<-crinitus_californicus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+crinitus_eremicus_means<-crinitus_eremicus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+crinitus_nasutus_means<-crinitus_nasutus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+eremicus_californicus_means<-eremicus_californicus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+eremicus_nasutus_means<-eremicus_nasutus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+nasutus_californicus_means<-nasutus_californicus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+
+polionotus_maniculatus_means<-polionotus_maniculatus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+crinitus_maniculatus_means<-crinitus_maniculatus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+crinitus_polionotus_means<-crinitus_polionotus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+eremicus_maniculatus_means<-eremicus_maniculatus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+eremicus_polionotus_means<-eremicus_polionotus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+eremicus_crinitus_means<-eremicus_crinitus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+nasutus_maniculatus_means<-nasutus_maniculatus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+nasutus_polionotus_means<-nasutus_polionotus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+nasutus_crinitus_means<-nasutus_crinitus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+nasutus_eremicus_means<-nasutus_eremicus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+californicus_maniculatus_means<-californicus_maniculatus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+californicus_polionotus_means<-californicus_polionotus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+californicus_crinitus_means<-californicus_crinitus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+californicus_eremicus_means<-californicus_eremicus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+californicus_nasutus_means<-californicus_nasutus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+
+
+###Sort chromosomes by name
+require(naturalsort)
+maniculatus_californicus_means_sorted<-maniculatus_californicus_means[naturalorder(maniculatus_californicus_means$CHR1),]
+maniculatus_crinitus_means_sorted<-maniculatus_crinitus_means[naturalorder(maniculatus_crinitus_means$CHR1),]
+maniculatus_eremicus_means_sorted<-maniculatus_eremicus_means[naturalorder(maniculatus_eremicus_means$CHR1),]
+maniculatus_nasutus_means_sorted<-maniculatus_nasutus_means[naturalorder(maniculatus_nasutus_means$CHR1),]
+maniculatus_polionotus_means_sorted<-maniculatus_polionotus_means[naturalorder(maniculatus_polionotus_means$CHR1),]
+polionotus_californicus_means_sorted<-polionotus_californicus_means[naturalorder(polionotus_californicus_means$CHR1),]
+polionotus_crinitus_means_sorted<-polionotus_crinitus_means[naturalorder(polionotus_crinitus_means$CHR1),]
+polionotus_eremicus_means_sorted<-polionotus_eremicus_means[naturalorder(polionotus_eremicus_means$CHR1),]
+polionotus_nasutus_means_sorted<-polionotus_nasutus_means[naturalorder(polionotus_nasutus_means$CHR1),]
+crinitus_californicus_means_sorted<-crinitus_californicus_means[naturalorder(crinitus_californicus_means$CHR1),]
+crinitus_eremicus_means_sorted<-crinitus_eremicus_means[naturalorder(crinitus_eremicus_means$CHR1),]
+crinitus_nasutus_means_sorted<-crinitus_nasutus_means[naturalorder(crinitus_nasutus_means$CHR1),]
+eremicus_californicus_means_sorted<-eremicus_californicus_means[naturalorder(eremicus_californicus_means$CHR1),]
+eremicus_nasutus_means_sorted<-eremicus_nasutus_means[naturalorder(eremicus_nasutus_means$CHR1),]
+nasutus_californicus_means_sorted<-nasutus_californicus_means[naturalorder(nasutus_californicus_means$CHR1),]
+
+polionotus_maniculatus_means_sorted<-polionotus_maniculatus_means[naturalorder(polionotus_maniculatus_means$CHR1),]
+crinitus_maniculatus_means_sorted<-crinitus_maniculatus_means[naturalorder(crinitus_maniculatus_means$CHR1),]
+crinitus_polionotus_means_sorted<-crinitus_polionotus_means[naturalorder(crinitus_polionotus_means$CHR1),]
+eremicus_maniculatus_means_sorted<-eremicus_maniculatus_means[naturalorder(eremicus_maniculatus_means$CHR1),]
+eremicus_polionotus_means_sorted<-eremicus_polionotus_means[naturalorder(eremicus_polionotus_means$CHR1),]
+eremicus_crinitus_means_sorted<-eremicus_crinitus_means[naturalorder(eremicus_crinitus_means$CHR1),]
+nasutus_maniculatus_means_sorted<-nasutus_maniculatus_means[naturalorder(nasutus_maniculatus_means$CHR1),]
+nasutus_polionotus_means_sorted<-nasutus_polionotus_means[naturalorder(nasutus_polionotus_means$CHR1),]
+nasutus_crinitus_means_sorted<-nasutus_crinitus_means[naturalorder(nasutus_crinitus_means$CHR1),]
+nasutus_eremicus_means_sorted<-nasutus_eremicus_means[naturalorder(nasutus_eremicus_means$CHR1),]
+californicus_maniculatus_means_sorted<-californicus_maniculatus_means[naturalorder(californicus_maniculatus_means$CHR1),]
+californicus_polionotus_means_sorted<-californicus_polionotus_means[naturalorder(californicus_polionotus_means$CHR1),]
+californicus_crinitus_means_sorted<-californicus_crinitus_means[naturalorder(californicus_crinitus_means$CHR1),]
+californicus_eremicus_means_sorted<-californicus_eremicus_means[naturalorder(californicus_eremicus_means$CHR1),]
+californicus_nasutus_means_sorted<-californicus_nasutus_means[naturalorder(californicus_nasutus_means$CHR1),]
+
+###Create vector with chromosome sizes for each species
+californicus_size<-c(190877991,166545015,160280158,153108158,135108212,132295648,116922554,97107874,113663737,97435531,92652276,80356967,64292899,85699326,77065821,62407110,61658153,45679219,77901386,68216057,68451442,54699646,45237853,132577752)
+crinitus_size<-c(173176752,158757088,152250085,146129253,132285000,128637825,111160280,97468232,108714508,94349816,85546760,77680078,62798541,82692919,75687604,61324349,59518933,43437092,75751537,63827984,65083789,50511230,39608377,129209768)
+eremicus_size<-c(207372720,179845666,173416523,155435261,149485207,145005006,126939158,115864700,122758979,104761774,102258833,90572741,71960357,92675631,83840453,70384580,69853577,52036885,86170652,75411628,75945467,60147906,49765058,133253128)
+maniculatus_size<-c(193310054,168715211,161151335,154712973,139359418,134808455,119402526,108536456,115033041,98965349,94517625,83173863,65685024,88525187,78974444,63928082,63635831,46762208,79940924,70296724,70257074,54709200,47673962,134369076)
+nasutus_size<-c(174975050,159120129,152150036,144742830,130976089,129151383,111840028,98054690,108387892,94020822,82796891,74446599,60367423,81420696,74749839,60226073,58842702,43598782,76598572,62846437,61764571,48882017,35407282,126684475)
+polionotus_size<-c(213001178,179096375,172541675,161953688,145907072,140436613,129192645,113812104,117603569,104081737,97236207,88981380,70652403,92967854,81991769,65954232,66477217,49099634,83585640,73613772,72004318,59453559,51919325,145040614)
+
+###Log transform chromosome sizes
+log_californicus_size<-log10(californicus_size)
+log_crinitus_size<-log10(crinitus_size)
+log_eremicus_size<-log10(eremicus_size)
+log_maniculatus_size<-log10(maniculatus_size)
+log_nasutus_size<-log10(nasutus_size)
+log_polionotus_size<-log10(polionotus_size)
+
+###Add chr size and log of chr size
+maniculatus_californicus_size<-cbind(maniculatus_californicus_means_sorted,maniculatus_size,log_maniculatus_size)
+maniculatus_crinitus_size<-cbind(maniculatus_crinitus_means_sorted,maniculatus_size,log_maniculatus_size)
+maniculatus_eremicus_size<-cbind(maniculatus_eremicus_means_sorted,maniculatus_size,log_maniculatus_size)
+maniculatus_nasutus_size<-cbind(maniculatus_nasutus_means_sorted,maniculatus_size,log_maniculatus_size)
+maniculatus_polionotus_size<-cbind(maniculatus_polionotus_means_sorted,maniculatus_size,log_maniculatus_size)
+polionotus_californicus_size<-cbind(polionotus_californicus_means_sorted,polionotus_size,log_polionotus_size)
+polionotus_crinitus_size<-cbind(polionotus_crinitus_means_sorted,polionotus_size,log_polionotus_size)
+polionotus_eremicus_size<-cbind(polionotus_eremicus_means_sorted,polionotus_size,log_polionotus_size)
+polionotus_nasutus_size<-cbind(polionotus_nasutus_means_sorted,polionotus_size,log_polionotus_size)
+crinitus_californicus_size<-cbind(crinitus_californicus_means_sorted,crinitus_size,log_crinitus_size)
+crinitus_eremicus_size<-cbind(crinitus_eremicus_means_sorted,crinitus_size,log_crinitus_size)
+crinitus_nasutus_size<-cbind(crinitus_nasutus_means_sorted,crinitus_size,log_crinitus_size)
+eremicus_californicus_size<-cbind(eremicus_californicus_means_sorted,eremicus_size,log_eremicus_size)
+eremicus_nasutus_size<-cbind(eremicus_nasutus_means_sorted,eremicus_size,log_eremicus_size)
+nasutus_californicus_size<-cbind(nasutus_californicus_means_sorted,nasutus_size,log_nasutus_size)
+
+polionotus_maniculatus_size<-cbind(polionotus_maniculatus_means_sorted, polionotus_size, log_polionotus_size)
+crinitus_maniculatus_size<-cbind(crinitus_maniculatus_means_sorted, crinitus_size, log_crinitus_size)
+crinitus_polionotus_size<-cbind(crinitus_polionotus_means_sorted, crinitus_size, log_crinitus_size)
+eremicus_maniculatus_size<-cbind(eremicus_maniculatus_means_sorted, eremicus_size, log_eremicus_size)
+eremicus_polionotus_size<-cbind(eremicus_polionotus_means_sorted, eremicus_size, log_eremicus_size)
+eremicus_crinitus_size<-cbind(eremicus_crinitus_means_sorted, eremicus_size, log_eremicus_size)
+nasutus_maniculatus_size<-cbind(nasutus_maniculatus_means_sorted, nasutus_size, log_nasutus_size)
+nasutus_polionotus_size<-cbind(nasutus_polionotus_means_sorted, nasutus_size, log_nasutus_size)
+nasutus_crinitus_size<-cbind(nasutus_crinitus_means_sorted, nasutus_size, log_nasutus_size)
+nasutus_eremicus_size<-cbind(nasutus_eremicus_means_sorted, nasutus_size, log_nasutus_size)
+californicus_maniculatus_size<-cbind(californicus_maniculatus_means_sorted, californicus_size, log_californicus_size)
+californicus_polionotus_size<-cbind(californicus_polionotus_means_sorted, californicus_size, log_californicus_size)
+californicus_crinitus_size<-cbind(californicus_crinitus_means_sorted, californicus_size, log_californicus_size)
+californicus_eremicus_size<-cbind(californicus_eremicus_means_sorted, californicus_size, log_californicus_size)
+californicus_nasutus_size<-cbind(californicus_nasutus_means_sorted, californicus_size, log_californicus_size)
+
+###Remove chrX from file
+maniculatus_californicus_size_nox<-maniculatus_californicus_size[-c(24),]
+maniculatus_crinitus_size_nox<-maniculatus_crinitus_size[-c(24),]
+maniculatus_eremicus_size_nox<-maniculatus_eremicus_size[-c(24),]
+maniculatus_nasutus_size_nox<-maniculatus_nasutus_size[-c(24),]
+maniculatus_polionotus_size_nox<-maniculatus_polionotus_size[-c(24),]
+polionotus_californicus_size_nox<-polionotus_californicus_size[-c(24),]
+polionotus_crinitus_size_nox<-polionotus_crinitus_size[-c(24),]
+polionotus_eremicus_size_nox<-polionotus_eremicus_size[-c(24),]
+polionotus_nasutus_size_nox<-polionotus_nasutus_size[-c(24),]
+crinitus_californicus_size_nox<-crinitus_californicus_size[-c(24),]
+crinitus_eremicus_size_nox<-crinitus_eremicus_size[-c(24),]
+crinitus_nasutus_size_nox<-crinitus_nasutus_size[-c(24),]
+eremicus_californicus_size_nox<-eremicus_californicus_size[-c(24),]
+eremicus_nasutus_size_nox<-eremicus_nasutus_size[-c(24),]
+nasutus_californicus_size_nox<-nasutus_californicus_size[-c(24),]
+
+polionotus_maniculatus_size_nox<-polionotus_maniculatus_size[-c(24),]
+crinitus_maniculatus_size_nox<-crinitus_maniculatus_size[-c(24),]
+crinitus_polionotus_size_nox<-crinitus_polionotus_size[-c(24),]
+eremicus_maniculatus_size_nox<-eremicus_maniculatus_size[-c(24),]
+eremicus_polionotus_size_nox<-eremicus_polionotus_size[-c(24),]
+eremicus_crinitus_size_nox<-eremicus_crinitus_size[-c(24),]
+nasutus_maniculatus_size_nox<-nasutus_maniculatus_size[-c(24),]
+nasutus_polionotus_size_nox<-nasutus_polionotus_size[-c(24),]
+nasutus_crinitus_size_nox<-nasutus_crinitus_size[-c(24),]
+nasutus_eremicus_size_nox<-nasutus_eremicus_size[-c(24),]
+californicus_maniculatus_size_nox<-californicus_maniculatus_size[-c(24),]
+californicus_polionotus_size_nox<-californicus_polionotus_size[-c(24),]
+californicus_crinitus_size_nox<-californicus_crinitus_size[-c(24),]
+californicus_eremicus_size_nox<-californicus_eremicus_size[-c(24),]
+californicus_nasutus_size_nox<-californicus_nasutus_size[-c(24),]
+
+###Calculate sequence divergence in addition to sequence identity
+maniculatus_californicus_size_nox$div<-100-maniculatus_californicus_size_nox$weighted_mean
+maniculatus_crinitus_size_nox$div<-100-maniculatus_crinitus_size_nox$weighted_mean
+maniculatus_eremicus_size_nox$div<-100-maniculatus_eremicus_size_nox$weighted_mean
+maniculatus_nasutus_size_nox$div<-100-maniculatus_nasutus_size_nox$weighted_mean
+maniculatus_polionotus_size_nox$div<-100-maniculatus_polionotus_size_nox$weighted_mean
+polionotus_californicus_size_nox$div<-100-polionotus_californicus_size_nox$weighted_mean
+polionotus_crinitus_size_nox$div<-100-polionotus_crinitus_size_nox$weighted_mean
+polionotus_eremicus_size_nox$div<-100-polionotus_eremicus_size_nox$weighted_mean
+polionotus_nasutus_size_nox$div<-100-polionotus_nasutus_size_nox$weighted_mean
+crinitus_californicus_size_nox$div<-100-crinitus_californicus_size_nox$weighted_mean
+crinitus_eremicus_size_nox$div<-100-crinitus_eremicus_size_nox$weighted_mean
+crinitus_nasutus_size_nox$div<-100-crinitus_nasutus_size_nox$weighted_mean
+eremicus_californicus_size_nox$div<-100-eremicus_californicus_size_nox$weighted_mean
+eremicus_nasutus_size_nox$div<-100-eremicus_nasutus_size_nox$weighted_mean
+nasutus_californicus_size_nox$div<-100-nasutus_californicus_size_nox$weighted_mean
+
+polionotus_maniculatus_size_nox$div<-100-polionotus_maniculatus_size_nox$weighted_mean
+crinitus_maniculatus_size_nox$div<-100-crinitus_maniculatus_size_nox$weighted_mean
+crinitus_polionotus_size_nox$div<-100-crinitus_polionotus_size_nox$weighted_mean
+eremicus_maniculatus_size_nox$div<-100-eremicus_maniculatus_size_nox$weighted_mean
+eremicus_polionotus_size_nox$div<-100-eremicus_polionotus_size_nox$weighted_mean
+eremicus_crinitus_size_nox$div<-100-eremicus_crinitus_size_nox$weighted_mean
+nasutus_maniculatus_size_nox$div<-100-nasutus_maniculatus_size_nox$weighted_mean
+nasutus_polionotus_size_nox$div<-100-nasutus_polionotus_size_nox$weighted_mean
+nasutus_crinitus_size_nox$div<-100-nasutus_crinitus_size_nox$weighted_mean
+nasutus_eremicus_size_nox$div<-100-nasutus_eremicus_size_nox$weighted_mean
+californicus_maniculatus_size_nox$div<-100-californicus_maniculatus_size_nox$weighted_mean
+californicus_polionotus_size_nox$div<-100-californicus_polionotus_size_nox$weighted_mean
+californicus_crinitus_size_nox$div<-100-californicus_crinitus_size_nox$weighted_mean
+californicus_eremicus_size_nox$div<-100-californicus_eremicus_size_nox$weighted_mean
+californicus_nasutus_size_nox$div<-100-californicus_nasutus_size_nox$weighted_mean
+
+###Plot all chr (no chrX) with sequence divergence
+maniculatus_californicus_plot_nox_div<-ggplot(maniculatus_californicus_size_nox, aes(log_maniculatus_size,div))
+maniculatus_crinitus_plot_nox_div<-ggplot(maniculatus_crinitus_size_nox, aes(log_maniculatus_size,div))
+maniculatus_eremicus_plot_nox_div<-ggplot(maniculatus_eremicus_size_nox, aes(log_maniculatus_size,div))
+maniculatus_nasutus_plot_nox_div<-ggplot(maniculatus_nasutus_size_nox, aes(log_maniculatus_size,div))
+maniculatus_polionotus_plot_nox_div<-ggplot(maniculatus_polionotus_size_nox, aes(log_maniculatus_size,div))
+polionotus_californicus_plot_nox_div<-ggplot(polionotus_californicus_size_nox, aes(log_polionotus_size,div))
+polionotus_crinitus_plot_nox_div<-ggplot(polionotus_crinitus_size_nox, aes(log_polionotus_size,div))
+polionotus_eremicus_plot_nox_div<-ggplot(polionotus_eremicus_size_nox, aes(log_polionotus_size,div))
+polionotus_nasutus_plot_nox_div<-ggplot(polionotus_nasutus_size_nox, aes(log_polionotus_size,div))
+crinitus_californicus_plot_nox_div<-ggplot(crinitus_californicus_size_nox, aes(log_crinitus_size,div))
+crinitus_eremicus_plot_nox_div<-ggplot(crinitus_eremicus_size_nox, aes(log_crinitus_size,div))
+crinitus_nasutus_plot_nox_div<-ggplot(crinitus_nasutus_size_nox, aes(log_crinitus_size,div))
+eremicus_californicus_plot_nox_div<-ggplot(eremicus_californicus_size_nox, aes(log_eremicus_size,div))
+eremicus_nasutus_plot_nox_div<-ggplot(eremicus_nasutus_size_nox, aes(log_eremicus_size,div))
+nasutus_californicus_plot_nox_div<-ggplot(nasutus_californicus_size_nox, aes(log_nasutus_size,div))
+
+polionotus_maniculatus_plot_nox_div<-ggplot(polionotus_maniculatus_size_nox, aes(log_polionotus_size,div))
+crinitus_maniculatus_plot_nox_div<-ggplot(crinitus_maniculatus_size_nox, aes(log_crinitus_size,div))
+crinitus_polionotus_plot_nox_div<-ggplot(crinitus_polionotus_size_nox, aes(log_crinitus_size,div))
+eremicus_maniculatus_plot_nox_div<-ggplot(eremicus_maniculatus_size_nox, aes(log_eremicus_size,div))
+eremicus_polionotus_plot_nox_div<-ggplot(eremicus_polionotus_size_nox, aes(log_eremicus_size,div))
+eremicus_crinitus_plot_nox_div<-ggplot(eremicus_crinitus_size_nox, aes(log_eremicus_size,div))
+nasutus_maniculatus_plot_nox_div<-ggplot(nasutus_maniculatus_size_nox, aes(log_nasutus_size,div))
+nasutus_polionotus_plot_nox_div<-ggplot(nasutus_polionotus_size_nox, aes(log_nasutus_size,div))
+nasutus_crinitus_plot_nox_div<-ggplot(nasutus_crinitus_size_nox, aes(log_nasutus_size,div))
+nasutus_eremicus_plot_nox_div<-ggplot(nasutus_eremicus_size_nox, aes(log_nasutus_size,div))
+californicus_maniculatus_plot_nox_div<-ggplot(californicus_maniculatus_size_nox, aes(log_californicus_size,div))
+californicus_polionotus_plot_nox_div<-ggplot(californicus_polionotus_size_nox, aes(log_californicus_size,div))
+californicus_crinitus_plot_nox_div<-ggplot(californicus_crinitus_size_nox, aes(log_californicus_size,div))
+californicus_eremicus_plot_nox_div<-ggplot(californicus_eremicus_size_nox, aes(log_californicus_size,div))
+californicus_nasutus_plot_nox_div<-ggplot(californicus_nasutus_size_nox, aes(log_californicus_size,div))
+
+###Add details to plots (exploratory plots)
+dp1<-maniculatus_californicus_plot_nox_div + geom_point() + ggtitle('maniculatus_californicus')
+dp2<-maniculatus_crinitus_plot_nox_div + geom_point() + ggtitle('maniculatus_crinitus')
+dp3<-maniculatus_eremicus_plot_nox_div + geom_point() + ggtitle('maniculatus_eremicus')
+dp4<-maniculatus_nasutus_plot_nox_div + geom_point() + ggtitle('maniculatus_nasutus')
+dp5<-maniculatus_polionotus_plot_nox_div + geom_point() + ggtitle('maniculatus_polionotus')
+dp6<-polionotus_californicus_plot_nox_div + geom_point() + ggtitle('polionotus_californicus')
+dp7<-polionotus_crinitus_plot_nox_div + geom_point() + ggtitle('polionotus_crinitus')
+dp8<-polionotus_eremicus_plot_nox_div + geom_point() + ggtitle('polionotus_eremicus')
+dp9<-polionotus_nasutus_plot_nox_div + geom_point() + ggtitle('polionotus_nasutus')
+dp10<-crinitus_californicus_plot_nox_div + geom_point() + ggtitle('crinitus_californicus')
+dp11<-crinitus_eremicus_plot_nox_div + geom_point() + ggtitle('crinitus_eremicus')
+dp12<-crinitus_nasutus_plot_nox_div + geom_point() + ggtitle('crinitus_nasutus')
+dp13<-eremicus_californicus_plot_nox_div + geom_point() + ggtitle('eremicus_californicus')
+dp14<-eremicus_nasutus_plot_nox_div + geom_point() + ggtitle('eremicus_nasutus')
+dp15<-nasutus_californicus_plot_nox_div + geom_point() + ggtitle('nasutus_californicus')
+
+dp16<-polionotus_maniculatus_plot_nox_div + geom_point() + ggtitle('polionotus_maniculatus')
+dp17<-crinitus_maniculatus_plot_nox_div + geom_point() + ggtitle('crinitus_maniculatus')
+dp18<-crinitus_polionotus_plot_nox_div + geom_point() + ggtitle('crinitus_polionotus')
+dp19<-eremicus_maniculatus_plot_nox_div + geom_point() + ggtitle('eremicus_maniculatus')
+dp20<-eremicus_polionotus_plot_nox_div + geom_point() + ggtitle('eremicus_polionotus')
+dp21<-eremicus_crinitus_plot_nox_div + geom_point() + ggtitle('eremicus_crinitus')
+dp22<-nasutus_maniculatus_plot_nox_div + geom_point() + ggtitle('nasutus_maniculatus')
+dp23<-nasutus_polionotus_plot_nox_div + geom_point() + ggtitle('nasutus_polionotus')
+dp24<-nasutus_crinitus_plot_nox_div + geom_point() + ggtitle('nasutus_crinitus')
+dp25<-nasutus_eremicus_plot_nox_div + geom_point() + ggtitle('nasutus_eremicus')
+dp26<-californicus_maniculatus_plot_nox_div + geom_point() + ggtitle('californicus_maniculatus')
+dp27<-californicus_polionotus_plot_nox_div + geom_point() + ggtitle('californicus_polionotus')
+dp28<-californicus_crinitus_plot_nox_div + geom_point() + ggtitle('californicus_crinitus')
+dp29<-californicus_eremicus_plot_nox_div + geom_point() + ggtitle('californicus_eremicus')
+dp30<-californicus_nasutus_plot_nox_div + geom_point() + ggtitle('californicus_nasutus')
+###Arrange plots in a single figure
+library(gridExtra)
+grid.arrange(dp1,dp2,dp3,dp4,dp5,dp6,dp7,dp8,dp9,dp10,dp11,dp12,dp13,dp14,dp15,dp16,dp17,dp18,dp19,dp20,dp21,dp22,dp23,dp24,dp25,dp26,dp27,dp28,dp29,dp30, nrow=6)
+
+###Test for correlation between chr size (log) and sequence divergence
+lm.pero1<-lm(maniculatus_californicus_size_nox$div ~ maniculatus_californicus_size_nox$log_maniculatus_size)
+lm.pero2<-lm(maniculatus_crinitus_size_nox$div ~ maniculatus_crinitus_size_nox$log_maniculatus_size)
+lm.pero3<-lm(maniculatus_eremicus_size_nox$div ~ maniculatus_eremicus_size_nox$log_maniculatus_size)
+lm.pero4<-lm(maniculatus_nasutus_size_nox$div ~ maniculatus_nasutus_size_nox$log_maniculatus_size)
+lm.pero5<-lm(maniculatus_polionotus_size_nox$div ~ maniculatus_polionotus_size_nox$log_maniculatus_size)
+lm.pero6<-lm(polionotus_californicus_size_nox$div ~ polionotus_californicus_size_nox$log_polionotus_size)
+lm.pero7<-lm(polionotus_crinitus_size_nox$div ~ polionotus_crinitus_size_nox$log_polionotus_size)
+lm.pero8<-lm(polionotus_eremicus_size_nox$div ~ polionotus_eremicus_size_nox$log_polionotus_size)
+lm.pero9<-lm(polionotus_nasutus_size_nox$div ~ polionotus_nasutus_size_nox$log_polionotus_size)
+lm.pero10<-lm(crinitus_californicus_size_nox$div ~ crinitus_californicus_size_nox$log_crinitus_size)
+lm.pero11<-lm(crinitus_eremicus_size_nox$div ~ crinitus_eremicus_size_nox$log_crinitus_size)
+lm.pero12<-lm(crinitus_nasutus_size_nox$div ~ crinitus_nasutus_size_nox$log_crinitus_siz)
+lm.pero13<-lm(eremicus_californicus_size_nox$div ~ eremicus_californicus_size_nox$log_eremicus_size)
+lm.pero14<-lm(eremicus_nasutus_size_nox$div ~ eremicus_nasutus_size_nox$log_eremicus_size)
+lm.pero15<-lm(nasutus_californicus_size_nox$div ~ nasutus_californicus_size_nox$log_nasutus_size)
+
+lm.pero16<-lm(polionotus_maniculatus_size_nox$div ~ polionotus_maniculatus_size_nox$log_polionotus_size)
+lm.pero17<-lm(crinitus_maniculatus_size_nox$div ~ crinitus_maniculatus_size_nox$log_crinitus_size)
+lm.pero18<-lm(crinitus_polionotus_size_nox$div ~ crinitus_polionotus_size_nox$log_crinitus_size)
+lm.pero19<-lm(eremicus_maniculatus_size_nox$div ~ eremicus_maniculatus_size_nox$log_eremicus_size)
+lm.pero20<-lm(eremicus_polionotus_size_nox$div ~ eremicus_polionotus_size_nox$log_eremicus_size)
+lm.pero21<-lm(eremicus_crinitus_size_nox$div ~ eremicus_crinitus_size_nox$log_eremicus_size)
+lm.pero22<-lm(nasutus_maniculatus_size_nox$div ~ nasutus_maniculatus_size_nox$log_nasutus_size)
+lm.pero23<-lm(nasutus_polionotus_size_nox$div ~ nasutus_polionotus_size_nox$log_nasutus_size)
+lm.pero24<-lm(nasutus_crinitus_size_nox$div ~ nasutus_crinitus_size_nox$log_nasutus_size)
+lm.pero25<-lm(nasutus_eremicus_size_nox$div ~ nasutus_eremicus_size_nox$log_nasutus_size)
+lm.pero26<-lm(californicus_maniculatus_size_nox$div ~ californicus_maniculatus_size_nox$log_californicus_size)
+lm.pero27<-lm(californicus_polionotus_size_nox$div ~ californicus_polionotus_size_nox$log_californicus_size)
+lm.pero28<-lm(californicus_crinitus_size_nox$div ~ californicus_crinitus_size_nox$log_californicus_size)
+lm.pero29<-lm(californicus_eremicus_size_nox$div ~ californicus_eremicus_size_nox$log_californicus_size)
+lm.pero30<-lm(californicus_nasutus_size_nox$div ~ californicus_nasutus_size_nox$log_californicus_size)
+
+summary(lm.pero1) # 0.8376 p-value: 9.601e-10 adj 0.8298
+summary(lm.pero2) # 0.8031 p-value: 7.377e-09 adj 0.7937
+summary(lm.pero3) # 0.8465 p-value: 5.262e-10 adj 0.8392
+summary(lm.pero4) # 0.8752 p-value: 5.927e-11 adj 0.8692
+summary(lm.pero5) # 0.6379 p-value: 4.912e-06 adj 0.6206 
+summary(lm.pero6) # 0.8135 p-value: 4.163e-09 adj 0.8046
+summary(lm.pero7) # 0.7991 p-value: 9.157e-09 adj 0.7895 
+summary(lm.pero8) # 0.8158 p-value: 3.647e-09 adj 0.807
+summary(lm.pero9) # 0.8956 p-value: 8.993e-12 adj 0.8906 
+summary(lm.pero10) # 0.8469 p-value: 5.12e-10 adj 0.8397 
+summary(lm.pero11) # 0.8439 p-value: 6.29e-10 adj 0.8365
+summary(lm.pero12) # 0.8953 p-value: 9.254e-12 adj 0.8903 
+summary(lm.pero13) # 0.7679 p-value: 4.236e-08 adj 0.7569
+summary(lm.pero14) # 0.867 p-value: 1.14e-10 adj 0.8609 
+summary(lm.pero15) # 0.8911 p-value: 1.409e-11 adj 0.8859 
+
+summary(lm.pero16) # 0.6091 p-value: 1.12e-05 adj 0.5904 
+summary(lm.pero17) # 0.8445 p-value: 6.036e-10 adj 0.8371 
+summary(lm.pero18) # 0.8479 p-value: 4.808e-10 adj 0.8406 
+summary(lm.pero19) # 0.8548 p-value: 2.924e-10 adj 0.8479  
+summary(lm.pero20) # 0.8296 p-value: 1.6e-09 adj 0.8214 
+summary(lm.pero21) # 0.8225 p-value: 2.456e-09 adj 0.8141
+summary(lm.pero22) # 0.9123 p-value: 1.427e-12 adj 0.9081 
+summary(lm.pero23) # 0.9127 p-value: 1.356e-12 adj 0.9086 
+summary(lm.pero24) # 0.9049 p-value: 3.358e-12 adj 0.9004 
+summary(lm.pero25) # 0.89 p-value: 1.555e-11 adj 0.8848
+summary(lm.pero26) # 0.8328 p-value: 1.304e-09 adj 0.8249 
+summary(lm.pero27) # 0.8071 p-value: 5.947e-09 adj 0.7979 
+summary(lm.pero28) # 0.8078 p-value: 5.704e-09 adj 0.7987 
+summary(lm.pero29) # 0.7613 p-value: 5.716e-08 adj 0.7499 
+summary(lm.pero30) # 0.8706 p-value: 8.674e-11 adj 0.8644
+
+
+############################
+
+###         MUS      ####
+
+###########################
+setwd("~/Dropbox/postdoc UNH/projects/20pero/divergence_analysis")
+library(radiant.data)
+library(data.table)
+
+###load data
+musculus_caroli<-fread("mummer_tab_files/mummer2musculus_caroli_chr.filter10k.tab", header = TRUE)
+musculus_pahari<-fread("mummer_tab_files/mummer2musculus_pahari_chr.filter10k.tab", header = TRUE)
+musculus_spretus<-fread("mummer_tab_files/mummer2musculus_spretus_chr.filter10k.tab", header = TRUE)
+caroli_pahari<-fread("mummer_tab_files/mummer2caroli_pahari_chr.filter10k.tab", header = TRUE)
+caroli_spretus<-fread("mummer_tab_files/mummer2caroli_spretus_chr.filter10k.tab", header = TRUE)
+pahari_spretus<-fread("mummer_tab_files/mummer2pahari_spretus_chr.filter10k.tab", header = TRUE)
+pahari_musculus<-fread("mummer_tab_files/mummer2pahari_musculus_chr.filter10k.tab", header = TRUE)
+pahari_caroli<-fread("mummer_tab_files/mummer2pahari_caroli_chr.filter10k.tab", header = TRUE)
+
+caroli_musculus<-fread("mummer_tab_files/mummer2caroli_musculus_chr.filter10k.tab", header = TRUE)
+spretus_musculus<-fread("mummer_tab_files/mummer2spretus_musculus_chr.filter10k.tab", header = TRUE)
+spretus_caroli<-fread("mummer_tab_files/mummer2spretus_caroli_chr.filter10k.tab", header = TRUE)
+spretus_pahari<-fread("mummer_tab_files/mummer2spretus_pahari_chr.filter10k.tab", header = TRUE)
+
+###exclude x chromosome
+musculus_caroli_nox<-musculus_caroli[CHR1 != 'chrX' | CHR1 != 'chrY']
+musculus_pahari_nox<-musculus_pahari[CHR1 != 'chrX' | CHR1 != 'chrY']
+musculus_spretus_nox<-musculus_spretus[CHR1 != 'chrX' | CHR1 != 'chrY' | CHR2 != 'chrY' ]
+caroli_pahari_nox<-caroli_pahari[CHR1 != 'chrX']
+caroli_spretus_nox<-caroli_spretus[CHR1 != 'chrX']
+pahari_spretus_nox<-pahari_spretus[CHR1 != 'chrX']
+pahari_musculus_nox<-pahari_musculus[CHR1 != 'chrX']
+pahari_caroli_nox<-pahari_caroli[CHR1 != 'chrX']
+
+caroli_musculus_nox<-caroli_musculus[CHR1 != 'chrX']
+spretus_musculus_nox<-spretus_musculus[CHR1 != 'chrX']
+spretus_caroli_nox<-spretus_caroli[CHR1 != 'chrX']
+spretus_pahari_nox<-spretus_pahari[CHR1 != 'chrX']
+
+###make file for X chromosome only
+musculus_caroli_x<-musculus_caroli[CHR1 == 'chrX']
+musculus_pahari_x<-musculus_pahari[CHR1 == 'chrX']
+musculus_spretus_x<-musculus_spretus[CHR1 == 'chrX']
+caroli_pahari_x<-caroli_pahari[CHR1 == 'chrX']
+caroli_spretus_x<-caroli_spretus[CHR1 == 'chrX']
+pahari_spretus_x<-pahari_spretus[CHR1 == 'chrX']
+pahari_musculus_x<-pahari_musculus[CHR1 == 'chrX']
+pahari_caroli_x<-pahari_caroli[CHR1 == 'chrX']
+
+caroli_musculus_x<-caroli_musculus[CHR1 == 'chrX']
+spretus_musculus_x<-spretus_musculus[CHR1 == 'chrX']
+spretus_caroli_x<-spretus_caroli[CHR1 == 'chrX']
+spretus_pahari_x<-spretus_pahari[CHR1 == 'chrX']
+
+
+###Calculate the weighted mean of identity across automosomes
+weighted.mean(musculus_caroli_nox$IDY,musculus_caroli_nox$LEN2)
+weighted.mean(musculus_pahari_nox$IDY,musculus_pahari_nox$LEN2)
+weighted.mean(musculus_spretus_nox$IDY,musculus_spretus_nox$LEN2)
+weighted.mean(caroli_pahari_nox$IDY,caroli_pahari_nox$LEN2)
+weighted.mean(caroli_spretus_nox$IDY,caroli_spretus_nox$LEN2)
+weighted.mean(pahari_spretus_nox$IDY,pahari_spretus_nox$LEN2)
+weighted.mean(pahari_musculus_nox$IDY,pahari_musculus_nox$LEN2)
+weighted.mean(pahari_caroli_nox$IDY,pahari_caroli_nox$LEN2)
+
+weighted.mean(caroli_musculus_nox$IDY,caroli_musculus_nox$LEN2)
+weighted.mean(spretus_musculus_nox$IDY,spretus_musculus_nox$LEN2)
+weighted.mean(spretus_caroli_nox$IDY,spretus_caroli_nox$LEN2)
+weighted.mean(spretus_pahari_nox$IDY,spretus_pahari_nox$LEN2)
+
+###Calculate the weighted mean of identity in X chromosome
+weighted.mean(musculus_caroli_x$IDY,musculus_caroli_x$LEN2)
+weighted.mean(musculus_pahari_x$IDY,musculus_pahari_x$LEN2)
+weighted.mean(musculus_spretus_x$IDY,musculus_spretus_x$LEN2)
+weighted.mean(caroli_pahari_x$IDY,caroli_pahari_x$LEN2)
+weighted.mean(caroli_spretus_x$IDY,caroli_spretus_x$LEN2)
+weighted.mean(pahari_spretus_x$IDY,pahari_spretus_x$LEN2)
+weighted.mean(pahari_musculus_x$IDY,pahari_musculus_x$LEN2)
+weighted.mean(pahari_caroli_x$IDY,pahari_caroli_x$LEN2)
+
+weighted.mean(caroli_musculus_x$IDY,caroli_musculus_x$LEN2)
+weighted.mean(spretus_musculus_x$IDY,spretus_musculus_x$LEN2)
+weighted.mean(spretus_caroli_x$IDY,spretus_caroli_x$LEN2)
+weighted.mean(spretus_pahari_x$IDY,spretus_pahari_x$LEN2)
+
+###Calculate mean identity for each chromosome and put it in a new file
+musculus_caroli_means<-musculus_caroli[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+musculus_pahari_means<-musculus_pahari[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+musculus_spretus_means<-musculus_spretus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+caroli_pahari_means<-caroli_pahari[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+caroli_spretus_means<-caroli_spretus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+pahari_spretus_means<-pahari_spretus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+pahari_caroli_means<-pahari_caroli[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+pahari_musculus_means<-pahari_musculus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+
+caroli_musculus_means<-caroli_musculus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+spretus_musculus_means<-spretus_musculus[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+spretus_caroli_means<-spretus_caroli[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+spretus_pahari_means<-spretus_pahari[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+
+###Sort chromosomes by name
+require(naturalsort)
+musculus_caroli_means_sorted<-musculus_caroli_means[naturalorder(musculus_caroli_means$CHR1),]
+musculus_pahari_means_sorted<-musculus_pahari_means[naturalorder(musculus_pahari_means$CHR1),]
+musculus_spretus_means_sorted<-musculus_spretus_means[naturalorder(musculus_spretus_means$CHR1),]
+caroli_pahari_means_sorted<-caroli_pahari_means[naturalorder(caroli_pahari_means$CHR1),]
+caroli_spretus_means_sorted<-caroli_spretus_means[naturalorder(caroli_spretus_means$CHR1),]
+pahari_spretus_means_sorted<-pahari_spretus_means[naturalorder(pahari_spretus_means$CHR1),]
+pahari_musculus_means_sorted<-pahari_musculus_means[naturalorder(pahari_musculus_means$CHR1),]
+pahari_caroli_means_sorted<-pahari_caroli_means[naturalorder(pahari_caroli_means$CHR1),]
+
+caroli_musculus_means_sorted<-caroli_musculus_means[naturalorder(caroli_musculus_means$CHR1),]
+spretus_musculus_means_sorted<-spretus_musculus_means[naturalorder(spretus_musculus_means$CHR1),]
+spretus_caroli_means_sorted<-spretus_caroli_means[naturalorder(spretus_caroli_means$CHR1),]
+spretus_pahari_means_sorted<-spretus_pahari_means[naturalorder(spretus_pahari_means$CHR1),]
+
+###Create vector with chromosome sizes for each species
+musculus_size<-c(195471971,182113224,160039680,156508116,151834684,149736546,145441459,129401213,124595110,130694993,122082543,120129022,120421639,124902244,104043685,98207768,94987271,90702639,61431566,171031299,91744698)
+caroli_size<-c(185492789,171410997,152576986,146158383,145277780,147274239,147524369,120012414,120003353,122627250,117747451,114734182,112758220,113551381,97450195,92629107,89975685,86406422,57673148,158037523)
+pahari_size<-c(172151128,163939365,164141553,146485248,167013402,107150856,113323912,111406228,92399829,116904986,77350604,89017189,96704406,88915856,82564344,69342659,68186955,59539374,89631738,52117086,55716805,50160631,41896614,148379591)
+spretus_size<-c(198846266,182815943,160222558,152946536,152823684,150978388,136257712,130317789,126249303,131945496,125065471,114123490,117181667,117542938,104786220,97876770,94415995,90668104,59623150,148322235)
+
+###Log transform chromosome sizes
+log_musculus_size<-log10(musculus_size)
+log_caroli_size<-log10(caroli_size)
+log_pahari_size<-log10(pahari_size)
+log_spretus_size<-log10(spretus_size)
+
+###Add chr size and log of chr size
+musculus_caroli_size<-cbind(musculus_caroli_means_sorted,musculus_size,log_musculus_size)
+musculus_pahari_size<-cbind(musculus_pahari_means_sorted,musculus_size,log_musculus_size)
+musculus_spretus_size<-cbind(musculus_spretus_means_sorted,musculus_size,log_musculus_size)
+caroli_pahari_size<-cbind(caroli_pahari_means_sorted,caroli_size,log_caroli_size)
+caroli_spretus_size<-cbind(caroli_spretus_means_sorted,caroli_size,log_caroli_size)
+pahari_spretus_size<-cbind(pahari_spretus_means_sorted,pahari_size,log_pahari_size)
+pahari_musculus_size<-cbind(pahari_musculus_means_sorted,pahari_size,log_pahari_size)
+pahari_caroli_size<-cbind(pahari_caroli_means_sorted,pahari_size,log_pahari_size)
+
+caroli_musculus_size<-cbind(caroli_musculus_means_sorted,caroli_size,log_caroli_size)
+spretus_musculus_size<-cbind(spretus_musculus_means_sorted,spretus_size,log_spretus_size)
+spretus_caroli_size<-cbind(spretus_caroli_means_sorted,spretus_size,log_spretus_size)
+spretus_pahari_size<-cbind(spretus_pahari_means_sorted,spretus_size,log_spretus_size)
+
+###Remove chrX from file
+musculus_caroli_size_nox<-musculus_caroli_size[-c(20,21),]
+musculus_pahari_size_nox<-musculus_pahari_size[-c(20,21),]
+musculus_spretus_size_nox<-musculus_spretus_size[-c(20,21),]
+caroli_pahari_size_nox<-caroli_pahari_size[-c(20),]
+caroli_spretus_size_nox<-caroli_spretus_size[-c(20),]
+pahari_spretus_size_nox<-pahari_spretus_size[-c(24),]
+pahari_musculus_size_nox<-pahari_musculus_size[-c(24),]
+pahari_caroli_size_nox<-pahari_caroli_size[-c(24),]
+
+caroli_musculus_size_nox<-caroli_musculus_size[-c(20),]
+spretus_musculus_size_nox<-spretus_musculus_size[-c(20),]
+spretus_caroli_size_nox<-spretus_caroli_size[-c(20),]
+spretus_pahari_size_nox<-spretus_pahari_size[-c(20),]
+
+###Add sequence divergence in addition to sequence identity
+musculus_caroli_size_nox$div<-100-musculus_caroli_size_nox$weighted_mean
+musculus_pahari_size_nox$div<-100-musculus_pahari_size_nox$weighted_mean
+musculus_spretus_size_nox$div<-100-musculus_spretus_size_nox$weighted_mean
+caroli_pahari_size_nox$div<-100-caroli_pahari_size_nox$weighted_mean
+caroli_spretus_size_nox$div<-100-caroli_spretus_size_nox$weighted_mean
+pahari_spretus_size_nox$div<-100-pahari_spretus_size_nox$weighted_mean
+pahari_musculus_size_nox$div<-100-pahari_musculus_size_nox$weighted_mean
+pahari_caroli_size_nox$div<-100-pahari_caroli_size_nox$weighted_mean
+
+caroli_musculus_size_nox$div<-100-caroli_musculus_size_nox$weighted_mean
+spretus_musculus_size_nox$div<-100-spretus_musculus_size_nox$weighted_mean
+spretus_caroli_size_nox$div<-100-spretus_caroli_size_nox$weighted_mean
+spretus_pahari_size_nox$div<-100-spretus_pahari_size_nox$weighted_mean
+
+###Plot all chr (no chrX) with sequence divergence
+musculus_caroli_plot_nox_div<-ggplot(musculus_caroli_size_nox, aes(log_musculus_size,div))
+musculus_pahari_plot_nox_div<-ggplot(musculus_pahari_size_nox, aes(log_musculus_size,div))
+musculus_spretus_plot_nox_div<-ggplot(musculus_spretus_size_nox, aes(log_musculus_size,div))
+caroli_pahari_plot_nox_div<-ggplot(caroli_pahari_size_nox, aes(log_caroli_size,div))
+caroli_spretus_plot_nox_div<-ggplot(caroli_spretus_size_nox, aes(log_caroli_size,div))
+pahari_spretus_plot_nox_div<-ggplot(pahari_spretus_size_nox, aes(log_pahari_size,div))
+pahari_musculus_plot_nox_div<-ggplot(pahari_musculus_size_nox, aes(log_pahari_size,div))
+pahari_caroli_plot_nox_div<-ggplot(pahari_caroli_size_nox, aes(log_pahari_size,div))
+
+caroli_musculus_plot_nox_div<-ggplot(caroli_musculus_size_nox, aes(log_caroli_size,div))
+spretus_musculus_plot_nox_div<-ggplot(spretus_musculus_size_nox, aes(log_spretus_size,div))
+spretus_caroli_plot_nox_div<-ggplot(spretus_caroli_size_nox, aes(log_spretus_size,div))
+spretus_pahari_plot_nox_div<-ggplot(spretus_pahari_size_nox, aes(log_spretus_size,div))
+
+
+dm1<-musculus_caroli_plot_nox_div + geom_point() + ggtitle('musculus_caroli')
+dm2<-musculus_pahari_plot_nox_div + geom_point() + ggtitle('musculus_pahari')
+dm3<-musculus_spretus_plot_nox_div + geom_point() + ggtitle('musculus_spretus')
+dm4<-caroli_pahari_plot_nox_div + geom_point() + ggtitle('caroli_pahari')
+dm5<-caroli_spretus_plot_nox_div + geom_point() + ggtitle('caroli_spretus')
+dm6<-pahari_spretus_plot_nox_div + geom_point() + ggtitle('pahari_spretus')
+dm7<-pahari_musculus_plot_nox_div + geom_point() + ggtitle('pahari_musculus')
+dm8<-pahari_caroli_plot_nox_div + geom_point() + ggtitle('pahari_caroli')
+
+dm9<-caroli_musculus_plot_nox_div + geom_point() + ggtitle('caroli_musculus')
+dm10<-spretus_musculus_plot_nox_div + geom_point() + ggtitle('spretus_musculus')
+dm11<-spretus_caroli_plot_nox_div + geom_point() + ggtitle('spretus_caroli')
+dm12<-spretus_pahari_plot_nox_div + geom_point() + ggtitle('spretus_paharii')
+
+###Arrange plots in a single figure (exploratory plots)
+library(gridExtra)
+grid.arrange(dm1,dm2,dm3,dm4,dm5,dm6,dm7,dm8,dm9,dm10,dm11,dm12,nrow=4)
+
+lm.mus1_log<-lm(musculus_caroli_size_nox$weighted_mean ~ musculus_caroli_size_nox$log_musculus_size)
+lm.mus2_log<-lm(musculus_pahari_size_nox$weighted_mean ~ musculus_pahari_size_nox$log_musculus_size)
+lm.mus3_log<-lm(musculus_spretus_size_nox$weighted_mean ~ musculus_spretus_size_nox$log_musculus_size)
+lm.mus4_log<-lm(caroli_pahari_size_nox$weighted_mean ~ caroli_pahari_size_nox$log_caroli_size)
+lm.mus5_log<-lm(caroli_spretus_size_nox$weighted_mean ~ caroli_spretus_size_nox$log_caroli_size)
+lm.mus6_log<-lm(pahari_spretus_size_nox$weighted_mean ~ pahari_spretus_size_nox$log_pahari_size)
+lm.mus7_log<-lm(pahari_musculus_size_nox$weighted_mean ~ pahari_musculus_size_nox$log_pahari_size)
+lm.mus8_log<-lm(pahari_caroli_size_nox$weighted_mean ~ pahari_caroli_size_nox$log_pahari_size)
+
+lm.mus9_log<-lm(caroli_musculus_size_nox$weighted_mean ~ caroli_musculus_size_nox$log_caroli_size)
+lm.mus10_log<-lm(spretus_musculus_size_nox$weighted_mean ~ spretus_musculus_size_nox$log_spretus_size)
+lm.mus11_log<-lm(spretus_caroli_size_nox$weighted_mean ~ spretus_caroli_size_nox$log_spretus_size)
+lm.mus12_log<-lm(spretus_pahari_size_nox$weighted_mean ~ spretus_pahari_size_nox$log_spretus_size)
+
+summary(lm.mus1_log) #0.07614 p-value: 0.2528 adj 0.0218 
+summary(lm.mus2_log) #0.06866 p-value: 0.2785 adj 0.01388
+summary(lm.mus3_log) #0.1486 p-value: 0.1031 adj 0.09857
+summary(lm.mus4_log) #0.09066 p-value: 0.2103 adj 0.03717 
+summary(lm.mus5_log) #0.122 p-value: 0.1428 adj 0.0703
+summary(lm.mus6_log) #0.4499 p-value: 0.00046 adj 0.4237
+summary(lm.mus7_log) #0.5445 p-value: 5.848e-05 adj 0.5228
+summary(lm.mus8_log) #0.5586 p-value: 4.161e-05 adj 0.5376 
+summary(lm.mus9_log) #0.09626 p-value: 0.1961 adj 0.0431  
+summary(lm.mus10_log) #0.1395 p-value: 0.1153 adj 0.08884  
+summary(lm.mus11_log) #0.08057 p-value: 0.2389 adj 0.02649  
+summary(lm.mus12_log) #0.04094 p-value: 0.4061 adj -0.01547  
+
+############################
+
+###         HOMO      ####
+
+###########################
+setwd("~/Dropbox/postdoc UNH/projects/20pero/divergence_analysis")
+library(data.table)
+homo_pantro<-fread("mummer_tab_files/mummer2Homo_sapiens_Pan_troglodytes_chr.filter10k.tab", header = TRUE)
+homo_panpan<-fread("mummer_tab_files/mummer2Homo_sapiens_Pan_paniscus_chr.filter10k.tab", header = TRUE)
+homo_gorilla<-fread("mummer_tab_files/mummer2Homo_sapiens_Gorilla_gorilla_chr.filter10k.tab", header = TRUE)
+homo_orango<-fread("mummer_tab_files/mummer2Homo_sapiens_Pongo_abelii_chr.filter10k.tab", header = TRUE)
+pantro_panpan<-fread("mummer_tab_files/mummer2Pan_troglodytes_Pan_paniscus_chr.filter10k.tab", header = TRUE)
+pantro_gorilla<-fread("mummer_tab_files/mummer2Pan_troglodytes_Gorilla_gorilla_chr.filter10k.tab", header = TRUE)
+pantro_orango<-fread("mummer_tab_files/mummer2Pan_troglodytes_Pongo_abelii_chr.filter10k.tab", header = TRUE)
+panpan_gorilla<-fread("mummer_tab_files/mummer2Pan_paniscus_Gorilla_gorilla_chr.filter10k.tab", header = TRUE)
+panpan_orango<-fread("mummer_tab_files/mummer2Pan_paniscus_Pongo_abelii_chr.filter10k.tab", header = TRUE)
+gorilla_orango<-fread("mummer_tab_files/mummer2Gorilla_gorilla_Pongo_abelii_chr.filter10k.tab", header = TRUE)
+
+pantro_homo<-fread("mummer_tab_files/mummer2Pan_troglodytes_Homo_sapiens_chr.filter10k.tab", header = TRUE)
+panpan_homo<-fread("mummer_tab_files/mummer2Pan_paniscus_Homo_sapiens_chr.filter10k.tab", header = TRUE)
+panpan_pantro<-fread("mummer_tab_files/mummer2Pan_paniscus_Pan_troglodytes_chr.filter10k.tab", header = TRUE)
+gorilla_homo<-fread("mummer_tab_files/mummer2Gorilla_gorilla_Homo_sapiens_chr.filter10k.tab", header = TRUE)
+gorilla_pantro<-fread("mummer_tab_files/mummer2Gorilla_gorilla_Pan_troglodytes_chr.filter10k.tab", header = TRUE)
+gorilla_panpan<-fread("mummer_tab_files/mummer2Gorilla_gorilla_Pan_paniscus_chr.filter10k.tab", header = TRUE)
+orango_homo<-fread("mummer_tab_files/mummer2Pongo_abelii_Homo_sapiens_chr.filter10k.tab", header = TRUE)
+orango_pantro<-fread("mummer_tab_files/mummer2Pongo_abelii_Pan_troglodytes_chr.filter10k.tab", header = TRUE)
+orango_panpan<-fread("mummer_tab_files/mummer2Pongo_abelii_Pan_paniscus_chr.filter10k.tab", header = TRUE)
+orango_gorilla<-fread("mummer_tab_files/mummer2Pongo_abelii_Gorilla_gorilla_chr.filter10k.tab", header = TRUE)
+
+###exclude x chromosome
+homo_pantro_nox<-homo_pantro[CHR1 != 'chrX']
+homo_panpan_nox<-homo_panpan[CHR1 != 'chrX']
+homo_gorilla_nox<-homo_gorilla[CHR1 != 'chrX']
+homo_orango_nox<-homo_orango[CHR1 != 'chrX']
+pantro_panpan_nox<-pantro_panpan[CHR1 != 'chrX']
+pantro_gorilla_nox<-pantro_gorilla[CHR1 != 'chrX']
+pantro_orango_nox<-pantro_orango[CHR1 != 'chrX']
+panpan_gorilla_nox<-panpan_gorilla[CHR1 != 'chrX']
+panpan_orango_nox<-panpan_orango[CHR1 != 'chrX']
+gorilla_orango_nox<-gorilla_orango[CHR1 != 'chrX']
+
+pantro_homo_nox<-pantro_homo[CHR1 != 'chrX']
+panpan_homo_nox<-panpan_homo[CHR1 != 'chrX']
+panpan_pantro_nox<-panpan_pantro[CHR1 != 'chrX']
+gorilla_homo_nox<-gorilla_homo[CHR1 != 'chrX']
+gorilla_pantro_nox<-gorilla_pantro[CHR1 != 'chrX']
+gorilla_panpan_nox<-gorilla_panpan[CHR1 != 'chrX']
+orango_homo_nox<-orango_homo[CHR1 != 'chrX']
+orango_pantro_nox<-orango_pantro[CHR1 != 'chrX']
+orango_panpan_nox<-orango_panpan[CHR1 != 'chrX']
+orango_gorilla_nox<-orango_gorilla[CHR1 != 'chrX']
+
+###make file for X chromosome only
+homo_pantro_x<-homo_pantro[CHR1 == 'chrX']
+homo_panpan_x<-homo_panpan[CHR1 == 'chrX']
+homo_gorilla_x<-homo_gorilla[CHR1 == 'chrX']
+homo_orango_x<-homo_orango[CHR1 == 'chrX']
+pantro_panpan_x<-pantro_panpan[CHR1 == 'chrX']
+pantro_gorilla_x<-pantro_gorilla[CHR1 == 'chrX']
+pantro_orango_x<-pantro_orango[CHR1 == 'chrX']
+panpan_gorilla_x<-panpan_gorilla[CHR1 == 'chrX']
+panpan_orango_x<-panpan_orango[CHR1 == 'chrX']
+gorilla_orango_x<-gorilla_orango[CHR1 == 'chrX']
+
+pantro_homo_x<-pantro_homo[CHR1 == 'chrX']
+panpan_homo_x<-panpan_homo[CHR1 == 'chrX']
+panpan_pantro_x<-panpan_pantro[CHR1 == 'chrX']
+gorilla_homo_x<-gorilla_homo[CHR1 == 'chrX']
+gorilla_pantro_x<-gorilla_pantro[CHR1 == 'chrX']
+gorilla_panpan_x<-gorilla_panpan[CHR1 == 'chrX']
+orango_homo_x<-orango_homo[CHR1 == 'chrX']
+orango_pantro_x<-orango_pantro[CHR1 == 'chrX']
+orango_panpan_x<-orango_panpan[CHR1 == 'chrX']
+orango_gorilla_x<-orango_gorilla[CHR1 == 'chrX']
+
+###Calculate the weighted mean of identity across automosomes
+weighted.mean(homo_pantro_nox$IDY,homo_pantro_nox$LEN2)
+weighted.mean(homo_panpan_nox$IDY,homo_panpan_nox$LEN2)
+weighted.mean(homo_gorilla_nox$IDY,homo_gorilla_nox$LEN2)
+weighted.mean(homo_orango_nox$IDY,homo_orango_nox$LEN2)
+weighted.mean(pantro_panpan_nox$IDY,pantro_panpan_nox$LEN2)
+weighted.mean(pantro_gorilla_nox$IDY,pantro_gorilla_nox$LEN2)
+weighted.mean(pantro_orango_nox$IDY,pantro_orango_nox$LEN2)
+weighted.mean(panpan_gorilla_nox$IDY,panpan_gorilla_nox$LEN2)
+weighted.mean(panpan_orango_nox$IDY,panpan_orango_nox$LEN2)
+weighted.mean(gorilla_orango_nox$IDY,gorilla_orango_nox$LEN2)
+
+weighted.mean(pantro_homo_nox$IDY,pantro_homo_nox$LEN2)
+weighted.mean(panpan_homo_nox$IDY,panpan_homo_nox$LEN2)
+weighted.mean(panpan_pantro_nox$IDY,panpan_pantro_nox$LEN2)
+weighted.mean(gorilla_homo_nox$IDY,gorilla_homo_nox$LEN2)
+weighted.mean(gorilla_pantro_nox$IDY,gorilla_pantro_nox$LEN2)
+weighted.mean(gorilla_panpan_nox$IDY,gorilla_panpan_nox$LEN2)
+weighted.mean(orango_homo_nox$IDY,orango_homo_nox$LEN2)
+weighted.mean(orango_pantro_nox$IDY,orango_pantro_nox$LEN2)
+weighted.mean(orango_panpan_nox$IDY,orango_panpan_nox$LEN2)
+weighted.mean(orango_gorilla_nox$IDY,orango_gorilla_nox$LEN2)
+
+###Calculate the weighted mean of divergence in X chromosome
+weighted.mean(homo_pantro_x$IDY,homo_pantro_x$LEN2)
+weighted.mean(homo_panpan_x$IDY,homo_panpan_x$LEN2)
+weighted.mean(homo_gorilla_x$IDY,homo_gorilla_x$LEN2)
+weighted.mean(homo_orango_x$IDY,homo_orango_x$LEN2)
+weighted.mean(pantro_panpan_x$IDY,pantro_panpan_x$LEN2)
+weighted.mean(pantro_gorilla_x$IDY,pantro_gorilla_x$LEN2)
+weighted.mean(pantro_orango_x$IDY,pantro_orango_x$LEN2)
+weighted.mean(panpan_gorilla_x$IDY,panpan_gorilla_x$LEN2)
+weighted.mean(panpan_orango_x$IDY,panpan_orango_x$LEN2)
+weighted.mean(gorilla_orango_x$IDY,gorilla_orango_x$LEN2)
+
+weighted.mean(pantro_homo_x$IDY,pantro_homo_x$LEN2)
+weighted.mean(panpan_homo_x$IDY,panpan_homo_x$LEN2)
+weighted.mean(panpan_pantro_x$IDY,panpan_pantro_x$LEN2)
+weighted.mean(gorilla_homo_x$IDY,gorilla_homo_x$LEN2)
+weighted.mean(gorilla_pantro_x$IDY,gorilla_pantro_x$LEN2)
+weighted.mean(gorilla_panpan_x$IDY,gorilla_panpan_x$LEN2)
+weighted.mean(orango_homo_x$IDY,orango_homo_x$LEN2)
+weighted.mean(orango_pantro_x$IDY,orango_pantro_x$LEN2)
+weighted.mean(orango_panpan_x$IDY,orango_panpan_x$LEN2)
+weighted.mean(orango_gorilla_x$IDY,orango_gorilla_x$LEN2)
+
+###Calculate mean identity for each chromosome and put it in a new file
+homo_pantro_means<-homo_pantro[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+homo_panpan_means<-homo_panpan[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+homo_gorilla_means<-homo_gorilla[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+homo_orango_means<-homo_orango[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+pantro_panpan_means<-pantro_panpan[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+pantro_gorilla_means<-pantro_gorilla[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+pantro_orango_means<-pantro_orango[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+panpan_gorilla_means<-panpan_gorilla[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+panpan_orango_means<-panpan_orango[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+gorilla_orango_means<-gorilla_orango[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+
+pantro_homo_means<-pantro_homo[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+panpan_homo_means<-panpan_homo[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+panpan_pantro_means<-panpan_pantro[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+gorilla_homo_means<-gorilla_homo[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+gorilla_pantro_means<-gorilla_pantro[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+gorilla_panpan_means<-gorilla_panpan[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+orango_homo_means<-orango_homo[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+orango_pantro_means<-orango_pantro[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+orango_panpan_means<-orango_panpan[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+orango_gorilla_means<-orango_gorilla[,list(weighted_mean=weighted.mean(IDY,LEN2),weighted_sd=weighted.sd(IDY,LEN2)),by=CHR1]
+
+###Sort chromosomes by name
+require(naturalsort)
+homo_pantro_means_sorted<-homo_pantro_means[naturalorder(homo_pantro_means$CHR1),]
+homo_panpan_means_sorted<-homo_panpan_means[naturalorder(homo_panpan_means$CHR1),]
+homo_gorilla_means_sorted<-homo_gorilla_means[naturalorder(homo_gorilla_means$CHR1),]
+homo_orango_means_sorted<-homo_orango_means[naturalorder(homo_orango_means$CHR1),]
+pantro_panpan_means_sorted<-pantro_panpan_means[naturalorder(pantro_panpan_means$CHR1),]
+pantro_gorilla_means_sorted<-pantro_gorilla_means[naturalorder(pantro_gorilla_means$CHR1),]
+pantro_orango_means_sorted<-pantro_orango_means[naturalorder(pantro_orango_means$CHR1),]
+panpan_gorilla_means_sorted<-panpan_gorilla_means[naturalorder(panpan_gorilla_means$CHR1),]
+panpan_orango_means_sorted<-panpan_orango_means[naturalorder(panpan_orango_means$CHR1),]
+gorilla_orango_means_sorted<-gorilla_orango_means[naturalorder(gorilla_orango_means$CHR1),]
+
+pantro_homo_means_sorted<-pantro_homo_means[naturalorder(pantro_homo_means$CHR1),]
+panpan_homo_means_sorted<-panpan_homo_means[naturalorder(panpan_homo_means$CHR1),]
+panpan_pantro_means_sorted<-panpan_pantro_means[naturalorder(panpan_pantro_means$CHR1),]
+gorilla_homo_means_sorted<-gorilla_homo_means[naturalorder(gorilla_homo_means$CHR1),]
+gorilla_pantro_means_sorted<-gorilla_pantro_means[naturalorder(gorilla_pantro_means$CHR1),]
+gorilla_panpan_means_sorted<-gorilla_panpan_means[naturalorder(gorilla_panpan_means$CHR1),]
+orango_homo_means_sorted<-orango_homo_means[naturalorder(orango_homo_means$CHR1),]
+orango_pantro_means_sorted<-orango_pantro_means[naturalorder(orango_pantro_means$CHR1),]
+orango_panpan_means_sorted<-orango_panpan_means[naturalorder(orango_panpan_means$CHR1),]
+orango_gorilla_means_sorted<-orango_gorilla_means[naturalorder(orango_gorilla_means$CHR1),]
+
+###Create vector with chromosome sizes for each species
+homo_size<-c(248956422,242193529,198295559,190214555,181538259,170805979,159345973,145138636,138394717,133797422,135086622,133275309,114364328,107043718,101991189,90338345,83257441,80373285,58617616,64444167,46709983,50818468,156040895)
+pantro_size<-c(224244399,108022953,128755405,196562556,189151597,159319378,168369391,156046543,143338810,110513671,129809613,130782606,130995916,95599650,87716528,80519282,75912362,76554115,74774469,56733099,64035432,33232379,33698415,151576176)
+panpan_size<-c(229774977,114371477,247869975,205426864,195804263,183735486,173848474,162613886,144709823,138149186,134942546,134183262,135337776,114479721,107357366,99763055,90481686,83442489,77229886,64411610,62195757,46275980,50109623,155392059)
+gorilla_size<-c(219763114,107978307,127988552,193158673,187801456,160656230,168483175,148261789,140819930,107756877,127481205,118287947,128803207,92570210,87619771,76908023,74389185,90905695,73862527,48390056,60378084,32685706,32715551,149490469)
+orango_size<-c(227913704, 109511694, 129937803, 193656255, 189387572, 179185813, 169501136, 145408105, 144036388, 112206110, 132178492, 128122151, 132184051, 98475126, 88963417, 82547911, 68237989, 75914007, 75923960, 57575784, 60841859, 34683425, 35308119, 151242693)
+
+###Log transform chromosome sizes
+log_homo_size<-log10(homo_size)
+log_pantro_size<-log10(pantro_size)
+log_panpan_size<-log10(panpan_size)
+log_gorilla_size<-log10(gorilla_size)
+log_orango_size<-log10(orango_size)
+
+###Add chr size and log of chr size
+homo_pantro_size<-cbind(homo_pantro_means_sorted,homo_size,log_homo_size)
+homo_panpan_size<-cbind(homo_panpan_means_sorted,homo_size,log_homo_size)
+homo_gorilla_size<-cbind(homo_gorilla_means_sorted,homo_size,log_homo_size)
+homo_orango_size<-cbind(homo_orango_means_sorted,homo_size,log_homo_size)
+pantro_panpan_size<-cbind(pantro_panpan_means_sorted,pantro_size,log_pantro_size)
+pantro_gorilla_size<-cbind(pantro_gorilla_means_sorted,pantro_size,log_pantro_size)
+pantro_orango_size<-cbind(pantro_orango_means_sorted,pantro_size,log_pantro_size)
+panpan_gorilla_size<-cbind(panpan_gorilla_means_sorted,panpan_size,log_panpan_size)
+panpan_orango_size<-cbind(panpan_orango_means_sorted,panpan_size,log_panpan_size)
+gorilla_orango_size<-cbind(gorilla_orango_means_sorted,gorilla_size,log_gorilla_size)
+
+pantro_homo_size<-cbind(pantro_homo_means_sorted,pantro_size,log_pantro_size)
+panpan_homo_size<-cbind(panpan_homo_means_sorted,panpan_size,log_panpan_size)
+panpan_pantro_size<-cbind(panpan_pantro_means_sorted,panpan_size,log_panpan_size)
+gorilla_homo_size<-cbind(gorilla_homo_means_sorted,gorilla_size,log_gorilla_size)
+gorilla_pantro_size<-cbind(gorilla_pantro_means_sorted,gorilla_size,log_gorilla_size)
+gorilla_panpan_size<-cbind(gorilla_panpan_means_sorted,gorilla_size,log_gorilla_size)
+orango_homo_size<-cbind(orango_homo_means_sorted,orango_size,log_orango_size)
+orango_pantro_size<-cbind(orango_pantro_means_sorted,orango_size,log_orango_size)
+orango_panpan_size<-cbind(orango_panpan_means_sorted,orango_size,log_orango_size)
+orango_gorilla_size<-cbind(orango_gorilla_means_sorted,orango_size,log_orango_size)
+
+###Remove chrX from file
+homo_pantro_size_nox<-homo_pantro_size[-c(23),]
+homo_panpan_size_nox<-homo_panpan_size[-c(23),]
+homo_gorilla_size_nox<-homo_gorilla_size[-c(23),]
+homo_orango_size_nox<-homo_orango_size[-c(23),]
+pantro_panpan_size_nox<-pantro_panpan_size[-c(24),]
+pantro_gorilla_size_nox<-pantro_gorilla_size[-c(24),]
+pantro_orango_size_nox<-pantro_orango_size[-c(24),]
+panpan_gorilla_size_nox<-panpan_gorilla_size[-c(24),]
+panpan_orango_size_nox<-panpan_orango_size[-c(24),]
+gorilla_orango_size_nox<-gorilla_orango_size[-c(24),]
+
+pantro_homo_size_nox<-pantro_homo_size[-c(24),]
+panpan_homo_size_nox<-panpan_homo_size[-c(24),]
+panpan_pantro_size_nox<-panpan_pantro_size[-c(24),]
+gorilla_homo_size_nox<-gorilla_homo_size[-c(24),]
+gorilla_pantro_size_nox<-gorilla_pantro_size[-c(24),]
+gorilla_panpan_size_nox<-gorilla_panpan_size[-c(24),]
+orango_homo_size_nox<-orango_homo_size[-c(24),]
+orango_pantro_size_nox<-orango_pantro_size[-c(24),]
+orango_panpan_size_nox<-orango_panpan_size[-c(24),]
+orango_gorilla_size_nox<-orango_gorilla_size[-c(24),]
+
+###Add sequence divergence in addition to sequence identity
+homo_pantro_size_nox$div<-100-homo_pantro_size_nox$weighted_mean
+homo_panpan_size_nox$div<-100-homo_panpan_size_nox$weighted_mean
+homo_gorilla_size_nox$div<-100-homo_gorilla_size_nox$weighted_mean
+homo_orango_size_nox$div<-100-homo_orango_size_nox$weighted_mean
+pantro_panpan_size_nox$div<-100-pantro_panpan_size_nox$weighted_mean
+pantro_gorilla_size_nox$div<-100-pantro_gorilla_size_nox$weighted_mean
+pantro_orango_size_nox$div<-100-pantro_orango_size_nox$weighted_mean
+panpan_gorilla_size_nox$div<-100-panpan_gorilla_size_nox$weighted_mean
+panpan_orango_size_nox$div<-100-panpan_orango_size_nox$weighted_mean
+gorilla_orango_size_nox$div<-100-gorilla_orango_size_nox$weighted_mean
+
+pantro_homo_size_nox$div<-100-pantro_homo_size_nox$weighted_mean
+panpan_homo_size_nox$div<-100-panpan_homo_size_nox$weighted_mean
+panpan_pantro_size_nox$div<-100-panpan_pantro_size_nox$weighted_mean
+gorilla_homo_size_nox$div<-100-gorilla_homo_size_nox$weighted_mean
+gorilla_pantro_size_nox$div<-100-gorilla_pantro_size_nox$weighted_mean
+gorilla_panpan_size_nox$div<-100-gorilla_panpan_size_nox$weighted_mean
+orango_homo_size_nox$div<-100-orango_homo_size_nox$weighted_mean
+orango_pantro_size_nox$div<-100-orango_pantro_size_nox$weighted_mean
+orango_panpan_size_nox$div<-100-orango_panpan_size_nox$weighted_mean
+orango_gorilla_size_nox$div<-100-orango_gorilla_size_nox$weighted_mean
+
+###Plot all chr (no chrX) with sequence divergence
+homo_pantro_plot_nox_div<-ggplot(homo_pantro_size_nox, aes(log_homo_size,div))
+homo_panpan_plot_nox_div<-ggplot(homo_panpan_size_nox, aes(log_homo_size,div))
+homo_gorilla_plot_nox_div<-ggplot(homo_gorilla_size_nox, aes(log_homo_size,div))
+homo_orango_plot_nox_div<-ggplot(homo_orango_size_nox, aes(log_homo_size,div))
+pantro_panpan_plot_nox_div<-ggplot(pantro_panpan_size_nox, aes(log_pantro_size,div))
+pantro_gorilla_plot_nox_div<-ggplot(pantro_gorilla_size_nox, aes(log_pantro_size,div))
+pantro_orango_plot_nox_div<-ggplot(pantro_orango_size_nox, aes(log_pantro_size,div))
+panpan_gorilla_plot_nox_div<-ggplot(panpan_gorilla_size_nox, aes(log_panpan_size,div))
+panpan_orango_plot_nox_div<-ggplot(panpan_orango_size_nox, aes(log_panpan_size,div))
+gorilla_orango_plot_nox_div<-ggplot(gorilla_orango_size_nox, aes(log_gorilla_size,div))
+
+pantro_homo_plot_nox_div<-ggplot(pantro_homo_size_nox, aes(log_pantro_size,div))
+panpan_homo_plot_nox_div<-ggplot(panpan_homo_size_nox, aes(log_panpan_size,div))
+panpan_pantro_plot_nox_div<-ggplot(panpan_pantro_size_nox, aes(log_panpan_size,div))
+gorilla_homo_plot_nox_div<-ggplot(gorilla_homo_size_nox, aes(log_gorilla_size,div))
+gorilla_pantro_plot_nox_div<-ggplot(gorilla_pantro_size_nox, aes(log_gorilla_size,div))
+gorilla_panpan_plot_nox_div<-ggplot(gorilla_panpan_size_nox, aes(log_gorilla_size,div))
+orango_homo_plot_nox_div<-ggplot(orango_homo_size_nox, aes(log_orango_size,div))
+orango_pantro_plot_nox_div<-ggplot(orango_pantro_size_nox, aes(log_orango_size,div))
+orango_panpan_plot_nox_div<-ggplot(orango_panpan_size_nox, aes(log_orango_size,div))
+orango_gorilla_plot_nox_div<-ggplot(orango_gorilla_size_nox, aes(log_orango_size,div))
+
+
+dh1<-homo_pantro_plot_nox_div + geom_point() + ggtitle('homo_pantro')
+dh2<-homo_panpan_plot_nox_div + geom_point() + ggtitle('homo_panpan')
+dh3<-homo_gorilla_plot_nox_div + geom_point() + ggtitle('homo_gorilla')
+dh4<-homo_orango_plot_nox_div + geom_point() + ggtitle('homo_orango')
+dh5<-pantro_panpan_plot_nox_div + geom_point() + ggtitle('pantro_panpan')
+dh6<-pantro_gorilla_plot_nox_div + geom_point() + ggtitle('pantro_gorilla')
+dh7<-pantro_orango_plot_nox_div + geom_point() + ggtitle('pantro_orango')
+dh8<-panpan_gorilla_plot_nox_div + geom_point() + ggtitle('panpan_gorilla')
+dh9<-panpan_orango_plot_nox_div + geom_point() + ggtitle('panpan_orango')
+dh10<-gorilla_orango_plot_nox_div + geom_point() + ggtitle('gorilla_orango')
+
+dh11<-pantro_homo_plot_nox_div + geom_point() + ggtitle('pantro_homo')
+dh12<-panpan_homo_plot_nox_div + geom_point() + ggtitle('panpan_homo')
+dh13<-panpan_pantro_plot_nox_div + geom_point() + ggtitle('panpan_pantro')
+dh14<-gorilla_homo_plot_nox_div + geom_point() + ggtitle('gorilla_homo')
+dh15<-gorilla_pantro_plot_nox_div + geom_point() + ggtitle('gorilla_pantro')
+dh16<-gorilla_panpan_plot_nox_div + geom_point() + ggtitle('gorilla_panpan')
+dh17<-orango_homo_plot_nox_div + geom_point() + ggtitle('orango_homo')
+dh18<-orango_pantro_plot_nox_div + geom_point() + ggtitle('orango_pantro')
+dh19<-orango_panpan_plot_nox_div + geom_point() + ggtitle('orango_panpan')
+dh20<-orango_gorilla_plot_nox_div + geom_point() + ggtitle('orango_gorilla')
+
+###Arrange plots in a single figure
+library(gridExtra)
+grid.arrange(dh1,dh2,dh3,dh4,dh5,dh6,dh7,dh8,dh9,dh10,dh11,dh12,dh13,dh14,dh15,dh16,dh17,dh18,dh19,dh20,nrow=4)
+
+lm1_apes_log<-lm(homo_pantro_size_nox$weighted_mean ~ homo_pantro_size_nox$log_homo_size)
+lm2_apes_log<-lm(homo_panpan_size_nox$weighted_mean ~ homo_panpan_size_nox$log_homo_size)
+lm3_apes_log<-lm(homo_gorilla_size_nox$weighted_mean ~ homo_gorilla_size_nox$log_homo_size)
+lm4_apes_log<-lm(homo_orango_size_nox$weighted_mean ~ homo_orango_size_nox$log_homo_size)
+lm5_apes_log<-lm(pantro_panpan_size_nox$weighted_mean ~ pantro_panpan_size_nox$log_pantro_size)
+lm6_apes_log<-lm(pantro_gorilla_size_nox$weighted_mean ~ pantro_gorilla_size_nox$log_pantro_size)
+lm7_apes_log<-lm(pantro_orango_size_nox$weighted_mean ~ pantro_orango_size_nox$log_pantro_size)
+lm8_apes_log<-lm(panpan_gorilla_size_nox$weighted_mean ~ panpan_gorilla_size_nox$log_panpan_size)
+lm9_apes_log<-lm(panpan_orango_size_nox$weighted_mean ~ panpan_orango_size_nox$log_panpan_size)
+lm10_apes_log<-lm(gorilla_orango_size_nox$weighted_mean ~ gorilla_orango_size_nox$log_gorilla_size)
+
+lm11_apes_log<-lm(pantro_homo_size_nox$weighted_mean ~ pantro_homo_size_nox$log_pantro_size)
+lm11_apes_log<-lm(pantro_homo_size_nox$weighted_mean ~ pantro_homo_size_nox$log_pantro_size)
+lm12_apes_log<-lm(panpan_homo_size_nox$weighted_mean ~ panpan_homo_size_nox$log_panpan_size)
+lm13_apes_log<-lm(panpan_pantro_size_nox$weighted_mean ~ panpan_pantro_size_nox$log_panpan_size)
+lm14_apes_log<-lm(gorilla_homo_size_nox$weighted_mean ~ gorilla_homo_size_nox$log_gorilla_size)
+lm15_apes_log<-lm(gorilla_pantro_size_nox$weighted_mean ~ gorilla_pantro_size_nox$log_gorilla_size)
+lm16_apes_log<-lm(gorilla_panpan_size_nox$weighted_mean ~ gorilla_panpan_size_nox$log_gorilla_size)
+lm17_apes_log<-lm(orango_homo_size_nox$weighted_mean ~ orango_homo_size_nox$log_orango_size)
+lm18_apes_log<-lm(orango_pantro_size_nox$weighted_mean ~ orango_pantro_size_nox$log_orango_size)
+lm19_apes_log<-lm(orango_panpan_size_nox$weighted_mean ~ orango_panpan_size_nox$log_orango_size)
+lm20_apes_log<-lm(orango_gorilla_size_nox$weighted_mean ~ orango_gorilla_size_nox$log_orango_size)
+
+summary(lm1_apes_log) #0.6089 p-value: 1.842e-05 adj 0.5893
+summary(lm2_apes_log) #0.617 p-value: 1.485e-05 adj 0.5978
+summary(lm3_apes_log) #0.536 p-value: 0.0001074 adj 0.5128
+summary(lm4_apes_log) #0.6107 p-value: 1.755e-05 adj 0.5912
+summary(lm5_apes_log) #0.6682 p-value: 1.92e-06 adj 0.6524
+summary(lm6_apes_log) #0.4849, p-value: 0.0002235 adj 0.4604
+summary(lm7_apes_log) #0.5364 p-value: 7.081e-05 adj 0.5143
+summary(lm8_apes_log) #0.4831 p-value: 0.0002323 adj 0.4585
+summary(lm9_apes_log) #0.5602 p-value: 4e-05 adj 0.5392
+summary(lm10_apes_log) #0.5709 p-value: 3.06e-05 adj 0.5505
+summary(lm11_apes_log) #0.6244 p-value: 0.00000727 adj 0.6065 
+
+summary(lm11_apes_log) #0.6244 p-value: 7.27e-06 adj 0.6065 
+summary(lm12_apes_log) #0.563 p-value: 3.733e-05 adj 0.5422 
+summary(lm13_apes_log) #0.6487 p-value: 3.541e-06 adj 0.632 
+summary(lm14_apes_log) #0.5269 p-value: 8.83e-05 adj 0.5044 
+summary(lm15_apes_log) #0.4938 p-value: 0.0001848 adj 0.4697 
+summary(lm16_apes_log) #0.5012 p-value: 0.0001571 adj 0.4775
+summary(lm17_apes_log) #0.594 p-value: 1.682e-05 adj 0.5747 
+summary(lm18_apes_log) #0.5502 p-value: 5.107e-05 adj 0.5287 
+summary(lm19_apes_log) #0.5555 p-value: 4.487e-05 adj 0.5343 
+summary(lm20_apes_log) #0.5746 p-value: 2.785e-05 adj 0.5544
+
+### Figure 1 ####
+
+plot_pero_a<-ggplot(maniculatus_eremicus_size_nox, aes(log_maniculatus_size,div)) +
+  geom_point(color="#FCA007FF") + 
+  xlab("") + ylab(expression(italic('d'))) + 
+  ggtitle(expression(paste(italic("P. eremicus"), " to " ,italic("P. maniculatus"),collapse=""))) + 
+  stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF") +
+  theme_bw() + xlim(c(7.5, 8.4)) + ylim(c(7.2, 8.6)) +
+  theme(plot.margin = margin(0,0,-0.5,0.1, "cm"), plot.title = element_text(vjust = -1)) +
+  annotate(geom= "text",label = "paste(italic(R) ^ 2, \" = 0.84; \", italic(p), \" < 0.001\")", parse = TRUE, x=Inf,y=Inf,hjust=1.2,vjust=1.5)
+
+plot_pero_b<-ggplot(eremicus_maniculatus_size_nox, aes(log_eremicus_size,div)) +
+  geom_point(color="#FCA007FF", shape=1) + 
+  xlab("") + ylab("") +
+  ggtitle(expression(paste(italic("P. maniculatus"), " to " ,italic("P. eremicus"),collapse=""))) + 
+  stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF", linetype="dotted") +
+  theme_bw() + xlim(c(7.5, 8.4)) + ylim(c(7.2, 8.6)) +
+  theme(plot.margin = margin(0,0.1,-0.5,-0.2, "cm"), plot.title = element_text(vjust = -1))+
+  annotate(geom= "text",label = "paste(italic(R) ^ 2, \" = 0.85; \", italic(p), \" < 0.001\")", parse = TRUE, x=Inf,y=Inf,hjust=1.2,vjust=1.5)
+
+
+plot_homo_a<-ggplot(homo_pantro_size_nox, aes(log_homo_size,div)) +
+  geom_point(color="#D64B40FF") + 
+  xlab("") + ylab(expression(italic('d'))) +
+  ggtitle(expression(paste(italic("P. troglodytes"), " to " ,italic("H. sapiens"),collapse=""))) + 
+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") +
+  theme_bw() + xlim(c(7.5, 8.4)) + ylim(c(1.8, 2.4)) +
+  theme(plot.margin = margin(0,0,-0.5,0.1, "cm"), plot.title = element_text(vjust = -1))+
+  annotate(geom= "text",label = "paste(italic(R) ^ 2, \" = 0.59; \", italic(p), \" < 0.001\")", parse = TRUE, x=Inf,y=Inf,hjust=1.2,vjust=1.5)
+
+plot_homo_b<-ggplot(pantro_homo_size_nox, aes(log_pantro_size,div)) +
+  geom_point(color="#D64B40FF", shape=1) + 
+  xlab("") + ylab("") +
+  ggtitle(expression(paste(italic("H. sapiens"), " to " ,italic("P. troglodytes"),collapse=""))) + 
+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF", linetype="dotted") +
+  theme_bw() +  xlim(c(7.5, 8.4)) + ylim(c(1.8, 2.4)) +
+  theme(plot.margin = margin(0,0.1,-0.5,-0.2, "cm"), plot.title = element_text(vjust = -1))+
+  annotate(geom= "text",label = "paste(italic(R) ^ 2, \" = 0.60; \", italic(p), \" < 0.001\")", parse = TRUE, x=Inf,y=Inf,hjust=1.2,vjust=1.5)
+
+plot_mus_a<-ggplot(pahari_spretus_size_nox, aes(log_pahari_size,div)) +
+  geom_point(color="#87216BFF") + 
+  xlab('Reference chromosome size (log)') + ylab(expression(italic('d'))) +
+  ggtitle(expression(paste(italic("M. spretus"), " to " ,italic("M. pahari"),collapse=""))) + 
+  stat_smooth(method = "lm", se = FALSE, col = "#87216BFF") +
+  theme_bw() + xlim(c(7.5, 8.4)) + ylim(c(10.2, 12)) +
+  theme(plot.margin = margin(0,0,0.1,0.1, "cm"), plot.title = element_text(vjust = -1)) +
+  annotate(geom= "text",label = "paste(italic(R) ^ 2, \" = 0.42; \", italic(p), \" < 0.001\")", parse = TRUE, x=Inf,y=Inf,hjust=1.2,vjust=1.5)
+
+plot_mus_b<-ggplot(spretus_pahari_size_nox, aes(log_spretus_size,div)) +
+  geom_point(color="#87216BFF", shape=1) + 
+  xlab('Reference chromosome size (log)') + ylab("") +
+  ggtitle(expression(paste(italic("M. pahari"), " to " ,italic("M. spretus"),collapse=""))) + 
+  #stat_smooth(method = "lm", se = FALSE, col = "#87216BFF") +
+  theme_bw() + xlim(c(7.5, 8.4)) + ylim(c(10.2, 12)) +
+  theme(plot.margin = margin(0,0.1,0.1,-0.2, "cm"), plot.title = element_text(vjust = -1)) +
+  annotate(geom= "text",label = "n.s.", parse = TRUE, x=Inf,y=Inf,hjust=3,vjust=3)
+  
+#grid.arrange(plot_pero_a, plot_pero_b, plot_homo_a,plot_homo_b, plot_mus_a, plot_mus_b, nrow=3)
+install.packages("cowplot")
+library(cowplot)
+plot_grid(
+    plot_pero_a, plot_pero_b, plot_homo_a,plot_homo_b, plot_mus_a, plot_mus_b,
+    labels = c('A', 'B', 'C', 'D', 'E', 'F'),
+    nrow=3, axis="tblr")
+  
+
+  
+###Supp. Figures  with all comparisons Fig. S2, S3, and S4.
+
+pdp1<-maniculatus_californicus_plot_nox_div  + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp2<-maniculatus_crinitus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp3<-maniculatus_eremicus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp4<-maniculatus_nasutus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp5<-maniculatus_polionotus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp6<-polionotus_californicus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp7<-polionotus_crinitus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp8<-polionotus_eremicus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp9<-polionotus_nasutus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp10<-crinitus_californicus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp11<-crinitus_eremicus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp12<-crinitus_nasutus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp13<-eremicus_californicus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp14<-eremicus_nasutus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp15<-nasutus_californicus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp16<-polionotus_maniculatus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp17<-crinitus_maniculatus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4)) + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp18<-crinitus_polionotus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp19<-eremicus_maniculatus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp20<-eremicus_polionotus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp21<-eremicus_crinitus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp22<-nasutus_maniculatus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp23<-nasutus_polionotus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp24<-nasutus_crinitus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp25<-nasutus_eremicus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp26<-californicus_maniculatus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp27<-californicus_polionotus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp28<-californicus_crinitus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp29<-californicus_eremicus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+pdp30<-californicus_nasutus_plot_nox_div + geom_point(color="#FCA007FF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.50,8.4))  + theme(axis.text.x=element_blank(),text = element_text(size=20)) + stat_smooth(method = "lm", se = FALSE, col = "#FCA007FF")
+
+library(patchwork)
+maniculatus_ref<-plot_spacer() + pdp5 + pdp3 +  pdp1 +  pdp2 + pdp4 + plot_layout(widths = c(1,1,1,1,1,1))
+polionotus_ref<- pdp16 + plot_spacer() + pdp8 +  pdp6 +  pdp7 + pdp9 + plot_layout(widths = c(1,1,1,1,1,1))
+eremicus_ref<-pdp19 +  pdp20 +  plot_spacer() + pdp13 +  pdp21 + pdp14 + plot_layout(widths = c(1,1,1,1,1,1))
+californicus_ref<-pdp26 +  pdp27 +   pdp29 + plot_spacer() + pdp28 + pdp30 + plot_layout(widths = c(1,1,1,1,1,1))
+crinitus_ref<-pdp17 +  pdp18 +   pdp11 +   pdp10 + plot_spacer() +pdp14 + plot_layout(widths = c(1,1,1,1,1,1))
+nasutus_ref<-pdp22 + pdp23 + pdp25 +   pdp15 + pdp24 + plot_spacer() + plot_layout(widths = c(1,1,1,1,1,1))
+
+pdm1<-musculus_caroli_plot_nox_div + geom_point(color="#87216BFF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.60,8.3))  + theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdm2<-musculus_pahari_plot_nox_div + geom_point(color="#87216BFF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.60,8.3))  + theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdm3<-musculus_spretus_plot_nox_div + geom_point(color="#87216BFF") + xlab('') + ylab('')+ theme_bw() + xlim(c(7.60,8.3)) + theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdm4<-caroli_pahari_plot_nox_div + geom_point(color="#87216BFF") + xlab('') + ylab('')+   theme_bw() + xlim(c(7.60,8.3))  + theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdm5<-caroli_spretus_plot_nox_div + geom_point(color="#87216BFF") + xlab('') + ylab('')+  theme_bw() + xlim(c(7.60,8.3)) +  theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdm6<-pahari_spretus_plot_nox_div + geom_point(color="#87216BFF") + xlab('') + ylab('')+   stat_smooth(method = "lm", se = FALSE, col = "#87216BFF") +theme_bw() + xlim(c(7.60,8.3)) +  theme(text = element_text(size=20))
+pdm7<-pahari_musculus_plot_nox_div + geom_point(color="#87216BFF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#87216BFF") + theme_bw() + xlim(c(7.60,8.3)) +  theme(text = element_text(size=20))
+pdm8<-pahari_caroli_plot_nox_div + geom_point(color="#87216BFF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#87216BFF") + theme_bw() + xlim(c(7.60,8.3)) +  theme(text = element_text(size=20))
+pdm9<-caroli_musculus_plot_nox_div + geom_point(color="#87216BFF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.60,8.3)) +  theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdm10<-spretus_musculus_plot_nox_div + geom_point(color="#87216BFF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.60,8.3)) +  theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdm11<-spretus_caroli_plot_nox_div + geom_point() + geom_point(color="#87216BFF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.60,8.3)) + theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdm12<-spretus_pahari_plot_nox_div + geom_point() + geom_point(color="#87216BFF") + xlab('') + ylab('') + theme_bw() + xlim(c(7.60,8.3)) + theme(axis.text.x=element_blank(),text = element_text(size=20))
+
+musculus_ref<- plot_spacer() + pdm3 + pdm1 +  pdm2 +  plot_layout(widths = c(1,1,1,1))
+spretus_ref<- pdm10 + plot_spacer() + pdm11 +  pdm12 +  plot_layout(widths = c(1,1,1,1))
+caroli_ref<- pdm9 + pdm5 +  plot_spacer() + pdm4 +  plot_layout(widths = c(1,1,1,1))
+pahari_ref<- pdm7 + pdm6 +   pdm8 + plot_spacer() + plot_layout(widths = c(1,1,1,1)) 
+### Series of plots combined in Affinity Designer
+  
+pdh1<-homo_pantro_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50)) + theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdh2<-homo_panpan_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50)) + theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdh3<-homo_gorilla_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(axis.text.x=element_blank(), text = element_text(size=20))
+pdh4<-homo_orango_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(axis.text.x=element_blank() ,text = element_text(size=20))
+pdh5<-pantro_panpan_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdh6<-pantro_gorilla_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdh7<-pantro_orango_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(axis.text.x=element_blank() ,text = element_text(size=20))
+pdh8<-panpan_gorilla_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(axis.text.x=element_blank(), text = element_text(size=20))
+pdh9<-panpan_orango_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdh10<-gorilla_orango_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(axis.text.x=element_blank(), text = element_text(size=20))
+pdh11<-pantro_homo_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdh12<-panpan_homo_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw()+ xlim(c(7.50,8.50))  + theme(axis.text.x=element_blank(), text = element_text(size=20))
+pdh13<-panpan_pantro_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdh14<-gorilla_homo_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(axis.text.x=element_blank(), text = element_text(size=20))
+pdh15<-gorilla_pantro_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(axis.text.x=element_blank(),text = element_text(size=20))
+pdh16<-gorilla_panpan_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(axis.text.x=element_blank(), text = element_text(size=20))
+pdh17<-orango_homo_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(text = element_text(size=20))
+pdh18<-orango_pantro_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(text = element_text(size=20))
+pdh19<-orango_panpan_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(text = element_text(size=20))
+pdh20<-orango_gorilla_plot_nox_div + geom_point(color="#D64B40FF") + xlab('') + ylab('')+  stat_smooth(method = "lm", se = FALSE, col = "#D64B40FF") + theme_bw() + xlim(c(7.50,8.50))  + theme(text = element_text(size=20))
+
+library(patchwork)
+
+pantro_ref<- plot_spacer() + pdh5 + pdh11 +  pdh6 + pdh7 + plot_layout(widths = c(1, 1, 1,1,1))
+panpan_ref<- pdh13 + plot_spacer() + pdh12 +  pdh8 + pdh9 + plot_layout(widths = c(1, 1, 1,1,1))
+homo_ref<-pdh1 +  pdh2 +  plot_spacer() + pdh3 + pdh4 + plot_layout(widths = c(1, 1, 1,1,1))
+gorilla_ref<-pdh15 +  pdh16 +   pdh14 + plot_spacer() + pdh10 + plot_layout(widths = c(1, 1, 1,1,1))
+orango_ref<-pdh18 +  pdh19 +   pdh17 +  pdh20 + plot_spacer() + plot_layout(widths = c(1, 1, 1,1,1))
+### Series of plots combined in Affinity Designer
